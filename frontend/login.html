@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Giriş Yap · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Avukatlar için yapay zeka destekli dava dosyası analiz platformu" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root {
+    --navy: #0f172a;
+    --navy-light: #1e3a8a;
+    --gold: #d4af37;
+  }
+
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .brand-gradient {
+    background:
+      radial-gradient(circle at 15% 15%, rgba(212,175,55,0.10), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(30,58,138,0.55), transparent 45%),
+      linear-gradient(160deg, #0f172a 0%, #101a35 55%, #0b1226 100%);
+  }
+
+  .gold-focus:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.28);
+  }
+
+  .field-error { display: none; }
+  .field-error.show { display: flex; }
+  input.has-error { border-color: #dc2626 !important; }
+
+  .fade-in { animation: fadeIn .4s ease both; }
+  .fade-in-delay-1 { animation: fadeIn .4s ease .08s both; }
+  .fade-in-delay-2 { animation: fadeIn .4s ease .16s both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-spinner {
+    width: 16px; height: 16px; border-radius: 999px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in, .fade-in-delay-1, .fade-in-delay-2 { animation: none; }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans min-h-screen">
+
+<div class="min-h-screen grid lg:grid-cols-2">
+
+  <!-- ============ LEFT: Brand panel ============ -->
+  <div class="hidden lg:flex brand-gradient text-white relative overflow-hidden flex-col justify-between p-14 xl:p-16">
+
+    <!-- subtle legal-themed illustration placeholder -->
+    <svg class="absolute -bottom-24 -right-20 w-[520px] h-[520px] text-white/[0.04]" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.4">
+      <circle cx="100" cy="100" r="94" />
+      <path d="M100 30v140M55 55l90 90M145 55L55 145" />
+      <circle cx="100" cy="100" r="46" />
+    </svg>
+    <div class="absolute top-1/3 -left-16 w-72 h-72 rounded-full bg-gold/[0.06] blur-3xl"></div>
+
+    <div class="relative z-10 fade-in">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gold flex items-center justify-center font-bold text-navy text-lg">L</div>
+        <span class="text-xl font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+      </div>
+    </div>
+
+    <div class="relative z-10 max-w-md space-y-6 fade-in-delay-1">
+      <h1 class="text-4xl xl:text-[2.75rem] font-bold leading-[1.15] tracking-tight">
+        Dava dosyalarınızı<br />yapay zeka ile <span class="text-gold">saniyeler içinde</span> analiz edin.
+      </h1>
+      <p class="text-slate-300 text-[15px] leading-relaxed">
+        PDF dava dosyalarınızı güvenle yükleyin; riskli maddeleri tespit edin, dosya hakkında yapay zekaya soru sorun ve otomatik dilekçe taslakları oluşturun.
+      </p>
+
+      <ul class="space-y-3 pt-2">
+        <li class="flex items-center gap-3 text-sm text-slate-200">
+          <span class="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center shrink-0">
+            <i data-lucide="check" class="w-3 h-3 text-gold"></i>
+          </span>
+          Yapay Zeka Destekli Hukuki Analiz
+        </li>
+        <li class="flex items-center gap-3 text-sm text-slate-200">
+          <span class="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center shrink-0">
+            <i data-lucide="check" class="w-3 h-3 text-gold"></i>
+          </span>
+          Güvenli PDF İşleme
+        </li>
+        <li class="flex items-center gap-3 text-sm text-slate-200">
+          <span class="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center shrink-0">
+            <i data-lucide="check" class="w-3 h-3 text-gold"></i>
+          </span>
+          Dakikalar İçinde Dava Özeti
+        </li>
+      </ul>
+    </div>
+
+    <p class="relative z-10 text-xs text-slate-400 fade-in-delay-2">
+      © 2026 LexAssist AI · Türkiye'nin hukuk büroları için geliştirildi.
+    </p>
+  </div>
+
+  <!-- ============ RIGHT: Auth card ============ -->
+  <div class="flex flex-col items-center justify-center px-5 py-12 sm:px-8">
+    <div class="w-full max-w-md">
+
+      <!-- mobile logo -->
+      <div class="lg:hidden flex items-center gap-2.5 justify-center mb-8">
+        <div class="w-10 h-10 rounded-xl bg-navy flex items-center justify-center font-bold text-gold text-lg">L</div>
+        <span class="text-xl font-semibold tracking-tight text-navy">LexAssist <span class="text-gold">AI</span></span>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.16)] p-8 sm:p-10 fade-in">
+
+        <!-- ===== Login view ===== -->
+        <div id="loginView">
+          <h2 class="text-2xl font-bold text-navy tracking-tight">Tekrar Hoş Geldiniz</h2>
+          <p class="text-sm text-slate-500 mt-1.5 mb-7">Devam etmek için hesabınıza giriş yapın.</p>
+
+          <div id="loginAlert" class="hidden mb-5 text-sm rounded-lg px-4 py-3 flex items-start gap-2.5"></div>
+
+          <form id="loginForm" novalidate class="space-y-5">
+            <div>
+              <label for="loginEmail" class="block text-sm font-medium text-slate-700 mb-1.5">E-posta</label>
+              <div class="relative">
+                <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="loginEmail" type="email" name="email" required autocomplete="email" placeholder="ornek@hukukburosu.com"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-4 py-2.5 text-sm gold-focus transition" />
+              </div>
+              <p class="field-error mt-1.5 items-center gap-1.5 text-xs text-red-600">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Geçerli bir e-posta adresi giriniz.
+              </p>
+            </div>
+
+            <div>
+              <label for="loginPassword" class="block text-sm font-medium text-slate-700 mb-1.5">Şifre</label>
+              <div class="relative">
+                <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="loginPassword" type="password" name="password" required autocomplete="current-password" placeholder="••••••••"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-11 py-2.5 text-sm gold-focus transition" />
+                <button type="button" data-toggle-password="loginPassword" aria-label="Şifreyi göster/gizle"
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy transition">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <p class="field-error mt-1.5 items-center gap-1.5 text-xs text-red-600">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Şifrenizi giriniz.
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between text-sm">
+              <label class="flex items-center gap-2 text-slate-600 cursor-pointer select-none">
+                <input type="checkbox" name="remember" class="rounded border-slate-300 text-navy focus:ring-gold focus:ring-offset-0" />
+                Beni hatırla
+              </label>
+              <a href="#" class="text-navy-light font-medium hover:text-gold transition">Şifremi unuttum</a>
+            </div>
+
+            <button type="submit" id="loginSubmitBtn"
+              class="w-full bg-navy hover:bg-navy-light text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-navy/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+              <span class="btn-label">Giriş Yap</span>
+            </button>
+          </form>
+
+          <div class="flex items-center gap-3 my-7">
+            <div class="h-px flex-1 bg-slate-200"></div>
+            <span class="text-xs text-slate-400">veya</span>
+            <div class="h-px flex-1 bg-slate-200"></div>
+          </div>
+
+          <p class="text-center text-sm text-slate-600">
+            Hesabınız yok mu?
+            <button type="button" id="goToRegister" class="text-navy font-semibold hover:text-gold transition">Kayıt Olun</button>
+          </p>
+        </div>
+
+        <!-- ===== Register view ===== -->
+        <div id="registerView" class="hidden">
+          <h2 class="text-2xl font-bold text-navy tracking-tight">Hesap Oluşturun</h2>
+          <p class="text-sm text-slate-500 mt-1.5 mb-7">Hukuk büronuz için LexAssist AI'a katılın.</p>
+
+          <div id="registerAlert" class="hidden mb-5 text-sm rounded-lg px-4 py-3 flex items-start gap-2.5"></div>
+
+          <form id="registerForm" novalidate class="space-y-5">
+            <div>
+              <label for="registerName" class="block text-sm font-medium text-slate-700 mb-1.5">Ad Soyad</label>
+              <div class="relative">
+                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="registerName" type="text" name="fullName" required autocomplete="name" placeholder="Av. Ayşe Yılmaz"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-4 py-2.5 text-sm gold-focus transition" />
+              </div>
+              <p class="field-error mt-1.5 items-center gap-1.5 text-xs text-red-600">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Ad soyad giriniz.
+              </p>
+            </div>
+
+            <div>
+              <label for="registerEmail" class="block text-sm font-medium text-slate-700 mb-1.5">E-posta</label>
+              <div class="relative">
+                <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="registerEmail" type="email" name="email" required autocomplete="email" placeholder="ornek@hukukburosu.com"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-4 py-2.5 text-sm gold-focus transition" />
+              </div>
+              <p class="field-error mt-1.5 items-center gap-1.5 text-xs text-red-600">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Geçerli bir e-posta adresi giriniz.
+              </p>
+            </div>
+
+            <div>
+              <label for="registerPassword" class="block text-sm font-medium text-slate-700 mb-1.5">Şifre</label>
+              <div class="relative">
+                <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="registerPassword" type="password" name="password" required autocomplete="new-password" placeholder="En az 8 karakter"
+                  class="w-full rounded-lg border border-slate-300 pl-10 pr-11 py-2.5 text-sm gold-focus transition" />
+                <button type="button" data-toggle-password="registerPassword" aria-label="Şifreyi göster/gizle"
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy transition">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <p class="field-error mt-1.5 items-center gap-1.5 text-xs text-red-600">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Şifre en az 8 karakter olmalıdır.
+              </p>
+            </div>
+
+            <label class="flex items-start gap-2.5 text-xs text-slate-500 cursor-pointer select-none">
+              <input id="registerTerms" type="checkbox" required class="rounded border-slate-300 text-navy focus:ring-gold focus:ring-offset-0 mt-0.5" />
+              <span><a href="#" class="underline hover:text-gold">Kullanım Şartları</a> ve <a href="#" class="underline hover:text-gold">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.</span>
+            </label>
+
+            <button type="submit" id="registerSubmitBtn"
+              class="w-full bg-navy hover:bg-navy-light text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-navy/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+              <span class="btn-label">Hesap Oluştur</span>
+            </button>
+          </form>
+
+          <p class="text-center text-sm text-slate-600 mt-7">
+            Zaten hesabınız var mı?
+            <button type="button" id="goToLogin" class="text-navy font-semibold hover:text-gold transition">Giriş Yapın</button>
+          </p>
+        </div>
+      </div>
+
+      <!-- Security badges -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-6 fade-in-delay-1">
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium px-3.5 py-2 rounded-full shadow-sm">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-navy"></i>
+          JWT ile Güvenli Kimlik Doğrulama
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium px-3.5 py-2 rounded-full shadow-sm">
+          <i data-lucide="box" class="w-3.5 h-3.5 text-navy"></i>
+          Docker Isolated
+        </span>
+      </div>
+
+      <!-- Footer links -->
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-8 text-xs text-slate-400">
+        <a href="#" class="hover:text-navy transition">KVKK</a>
+        <a href="#" class="hover:text-navy transition">Gizlilik Politikası</a>
+        <a href="#" class="hover:text-navy transition">Kullanım Şartları</a>
+        <a href="#" class="hover:text-navy transition">Destek</a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { TOKEN_KEY } from './js/config/env.js';
+  import { request, setSession } from './js/api/http.js';
+
+  if (localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'index.html';
+  }
+
+  // ---- view switching ----
+  const loginView = document.getElementById('loginView');
+  const registerView = document.getElementById('registerView');
+
+  document.getElementById('goToRegister').addEventListener('click', () => {
+    loginView.classList.add('hidden');
+    registerView.classList.remove('hidden');
+  });
+  document.getElementById('goToLogin').addEventListener('click', () => {
+    registerView.classList.add('hidden');
+    loginView.classList.remove('hidden');
+  });
+
+  // ---- password visibility toggle ----
+  document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.togglePassword);
+      const icon = btn.querySelector('i');
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+      lucide.createIcons();
+    });
+  });
+
+  // ---- alert helper ----
+  function showAlert(el, type, message) {
+    const styles = {
+      error: 'bg-red-50 text-red-700 border border-red-100',
+      success: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+    };
+    const icon = type === 'error' ? 'alert-circle' : 'check-circle-2';
+    el.className = `mb-5 text-sm rounded-lg px-4 py-3 flex items-start gap-2.5 ${styles[type]}`;
+    el.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 mt-0.5 shrink-0"></i><span>${message}</span>`;
+    el.classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function hideAlert(el) {
+    el.classList.add('hidden');
+  }
+
+  function setFieldError(input, show) {
+    const error = input.closest('div').parentElement.querySelector('.field-error');
+    input.classList.toggle('has-error', show);
+    if (error) error.classList.toggle('show', show);
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function setLoading(button, loading, idleLabel) {
+    const label = button.querySelector('.btn-label');
+    button.disabled = loading;
+    if (loading) {
+      button.dataset.idleLabel = idleLabel;
+      label.innerHTML = '<span class="btn-spinner"></span> İşleniyor...';
+    } else {
+      label.textContent = idleLabel;
+    }
+  }
+
+  // ---- login submit ----
+  const loginForm = document.getElementById('loginForm');
+  const loginAlert = document.getElementById('loginAlert');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideAlert(loginAlert);
+
+    const emailValid = isValidEmail(loginEmail.value.trim());
+    const passwordValid = loginPassword.value.length > 0;
+    setFieldError(loginEmail, !emailValid);
+    setFieldError(loginPassword, !passwordValid);
+    if (!emailValid || !passwordValid) return;
+
+    setLoading(loginSubmitBtn, true, 'Giriş Yap');
+    try {
+      const data = await request('/auth/login', {
+        method: 'POST',
+        auth: false,
+        body: { email: loginEmail.value.trim(), password: loginPassword.value },
+      });
+      setSession(data.token, data.user);
+      showAlert(loginAlert, 'success', 'Giriş başarılı. Yönlendiriliyorsunuz...');
+      setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    } catch (err) {
+      if (err instanceof TypeError) {
+        // Backend henüz ayakta değil (bağlantı hatası) — diğer sayfaların
+        // requireAuth() koruması sizi kilitlemesin diye demo oturumuyla devam ediyoruz.
+        setSession('demo-token', { fullName: 'Av. Ayşe Yılmaz', email: loginEmail.value.trim() });
+        showAlert(loginAlert, 'success', 'Backend bağlı değil — demo modunda giriş yapıldı. Yönlendiriliyorsunuz...');
+        setTimeout(() => { window.location.href = 'index.html'; }, 900);
+        return;
+      }
+      showAlert(loginAlert, 'error', err.message || 'E-posta veya şifre hatalı.');
+      setLoading(loginSubmitBtn, false, 'Giriş Yap');
+    }
+  });
+
+  // ---- register submit ----
+  const registerForm = document.getElementById('registerForm');
+  const registerAlert = document.getElementById('registerAlert');
+  const registerName = document.getElementById('registerName');
+  const registerEmail = document.getElementById('registerEmail');
+  const registerPassword = document.getElementById('registerPassword');
+  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideAlert(registerAlert);
+
+    const nameValid = registerName.value.trim().length > 0;
+    const emailValid = isValidEmail(registerEmail.value.trim());
+    const passwordValid = registerPassword.value.length >= 8;
+    setFieldError(registerName, !nameValid);
+    setFieldError(registerEmail, !emailValid);
+    setFieldError(registerPassword, !passwordValid);
+    if (!nameValid || !emailValid || !passwordValid) return;
+
+    if (!document.getElementById('registerTerms').checked) {
+      showAlert(registerAlert, 'error', 'Devam etmek için Kullanım Şartları ve Gizlilik Politikası\'nı kabul etmelisiniz.');
+      return;
+    }
+
+    setLoading(registerSubmitBtn, true, 'Hesap Oluştur');
+    try {
+      const data = await request('/auth/register', {
+        method: 'POST',
+        auth: false,
+        body: {
+          fullName: registerName.value.trim(),
+          email: registerEmail.value.trim(),
+          password: registerPassword.value,
+        },
+      });
+      setSession(data.token, data.user);
+      showAlert(registerAlert, 'success', 'Hesabınız oluşturuldu. Yönlendiriliyorsunuz...');
+      setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setSession('demo-token', { fullName: registerName.value.trim(), email: registerEmail.value.trim() });
+        showAlert(registerAlert, 'success', 'Backend bağlı değil — demo modunda hesabınız oluşturuldu. Yönlendiriliyorsunuz...');
+        setTimeout(() => { window.location.href = 'index.html'; }, 900);
+        return;
+      }
+      showAlert(registerAlert, 'error', err.message || 'Kayıt oluşturulamadı.');
+      setLoading(registerSubmitBtn, false, 'Hesap Oluştur');
+    }
+  });
+
+  // clear field error as user types
+  [loginEmail, loginPassword, registerName, registerEmail, registerPassword].forEach((input) => {
+    input.addEventListener('input', () => setFieldError(input, false));
+  });
+
+  lucide.createIcons();
+</script>
+</body>
+</html>

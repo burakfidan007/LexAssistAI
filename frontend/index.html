@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Dava dosyanızı görüntüleyin, yapay zekaya soru sorun ve analiz sonuçlarını inceleyin" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root { --navy: #0f172a; --navy-light: #1e3a8a; --gold: #d4af37; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .gold-focus:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.28); }
+
+  .card-lift { transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }
+  .card-lift:hover { box-shadow: 0 12px 24px -8px rgba(15,23,42,0.12); transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn .3s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pop-in { animation: popIn .16s ease both; transform-origin: top right; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .toast-in { animation: toastIn .2s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sidebar-drawer { transition: transform .25s ease; }
+
+  .chat-bubble-user { background: var(--navy); color: #fff; }
+  .chat-bubble-ai { background: #f1f5f9; color: #0f172a; }
+
+  .typing-dot { animation: typingBounce 1.2s infinite ease-in-out; }
+  .typing-dot:nth-child(2) { animation-delay: .15s; }
+  .typing-dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%); background-size: 400% 100%; animation: skeletonShimmer 1.4s ease infinite; }
+  @keyframes skeletonShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+  .spin { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .assistant-ring { animation: assistantPulse 2.6s ease-in-out infinite; }
+  @keyframes assistantPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,.35); } 50% { box-shadow: 0 0 0 10px rgba(212,175,55,0); } }
+
+  .page-shadow { box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 12px 24px -12px rgba(15,23,42,.15); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .fade-in, .pop-in, .toast-in, .sidebar-drawer, .typing-dot, .skeleton, .spin, .assistant-ring {
+      animation: none !important; transition: none !important;
+    }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans">
+
+<div class="flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <aside id="sidebar" class="sidebar-drawer fixed lg:static inset-y-0 left-0 z-40 w-64 bg-navy text-white flex flex-col shrink-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center gap-2.5 px-6 py-6 border-b border-white/10 shrink-0">
+      <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center font-bold text-navy">L</div>
+      <span class="text-lg font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+    </div>
+
+    <nav class="px-3 py-6 space-y-1 shrink-0">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-gold"></i> Dashboard
+      </a>
+      <a href="my-cases.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="briefcase" class="w-4 h-4"></i> Davalarım
+      </a>
+      <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
+      </a>
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <div class="p-4 space-y-4 shrink-0 overflow-y-auto">
+      <!-- User / subscription / storage -->
+      <div class="rounded-xl bg-white/5 border border-white/10 p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
+            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 bg-white/10 px-2 py-0.5 rounded-full mt-0.5">
+              <i data-lucide="circle" class="w-2 h-2 fill-current"></i> Ücretsiz Plan
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-3.5">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+            <span>Depolama Alanı</span>
+            <span>2.4 GB / 5 GB</span>
+          </div>
+          <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-gold to-gold-light rounded-full" style="width: 48%"></div>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
+            <span>Ücretsiz Plan · aylık PDF limiti</span>
+            <a href="upload.html" class="text-gold hover:underline shrink-0">Detaylar</a>
+          </p>
+        </div>
+
+        <button id="sidebarLogoutBtn" class="w-full mt-3.5 flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-gold transition">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Çıkış Yap
+        </button>
+      </div>
+
+      <!-- Premium upgrade -->
+      <div class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
+        <p class="text-sm font-semibold text-white flex items-center gap-1.5"><i data-lucide="crown" class="w-3.5 h-3.5 text-gold"></i> Premium'a Yükseltin</p>
+        <p class="text-xs text-slate-300 mt-2 leading-relaxed">Sınırsız analiz, öncelikli AI kuyruğu ve gelişmiş araçların kilidini açın.</p>
+        <button id="sidebarUpgradeBtn" class="w-full mt-3.5 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Geç
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= CONTENT WRAPPER ======================= -->
+  <div class="flex-1 flex flex-col lg:flex-row min-w-0 lg:overflow-hidden">
+
+    <!-- ======================= CENTER COLUMN ======================= -->
+    <div class="flex-1 flex flex-col min-w-0 lg:overflow-hidden border-r border-slate-200 bg-white">
+
+      <!-- Topbar -->
+      <header class="shrink-0 border-b border-slate-200 flex items-center gap-3 px-4 sm:px-6 h-16">
+        <button id="menuToggle" class="lg:hidden text-slate-500 hover:text-navy transition shrink-0" aria-label="Menüyü aç">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
+        <div class="min-w-0 shrink-0">
+          <nav aria-label="Breadcrumb" class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 mb-0.5">
+            <a href="my-cases.html" class="hover:text-navy transition">Davalarım</a>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span class="text-slate-500 truncate max-w-[140px]">Yılmaz vs. ABC Ltd.</span>
+          </nav>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-bold text-navy truncate max-w-[160px] sm:max-w-xs">Yılmaz vs. ABC Ltd.</h1>
+            <span class="hidden sm:inline text-xs text-slate-400">2026/114</span>
+          </div>
+          <p class="hidden sm:block text-xs text-slate-400 truncate">Ayşe Yılmaz · Son analiz: 2 saat önce</p>
+        </div>
+
+        <button id="openPaletteBtn" class="flex-1 max-w-xs hidden md:flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left ml-2">
+          <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+          <span class="flex-1 truncate">Dava ara veya sayfaya git...</span>
+          <kbd class="hidden lg:inline text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">⌘K</kbd>
+        </button>
+
+        <div class="flex-1"></div>
+
+        <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+        </button>
+
+        <div class="relative shrink-0">
+          <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
+            <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
+          </button>
+          <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
+            <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+            <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+            <div class="h-px bg-slate-100 my-1.5"></div>
+            <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="shrink-0 flex items-center gap-1 bg-slate-100 rounded-lg p-1 m-4 w-fit">
+        <button id="tabChatBtn" class="text-sm font-semibold px-3.5 py-1.5 rounded-md bg-white text-navy shadow transition">AI ile Sohbet</button>
+        <button id="tabPdfBtn" class="text-sm font-semibold px-3.5 py-1.5 rounded-md text-slate-500 transition">PDF Önizleme</button>
+      </div>
+
+      <!-- ============ Chat view ============ -->
+      <div id="chatView" class="flex-1 flex flex-col min-h-0 px-4 sm:px-6 pb-4">
+
+        <div id="chatMessages" class="hidden flex-1 overflow-y-auto space-y-4 pr-1" role="log" aria-live="polite" aria-label="Sohbet geçmişi"></div>
+
+        <!-- Empty chat state -->
+        <div id="chatEmptyState" class="flex-1 flex flex-col items-center justify-center text-center px-4">
+          <div class="w-14 h-14 rounded-2xl bg-navy/5 flex items-center justify-center mb-4">
+            <i data-lucide="sparkles" class="w-6 h-6 text-navy"></i>
+          </div>
+          <h3 class="font-semibold text-navy">AI Asistanınız Hazır</h3>
+          <p class="text-sm text-slate-400 mt-1 max-w-sm">Bu dava dosyasıyla ilgili herhangi bir soru sorun, yapay zeka dosyayı inceleyerek yanıtlasın.</p>
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-5 max-w-md">
+            <button data-prompt="Davayı özetle" class="suggested-prompt text-xs font-medium text-navy bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-full transition">Davayı özetle</button>
+            <button data-prompt="Riskli maddeleri göster" class="suggested-prompt text-xs font-medium text-navy bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-full transition">Riskli maddeleri göster</button>
+            <button data-prompt="Bu sözleşmede cezai şart var mı?" class="suggested-prompt text-xs font-medium text-navy bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-full transition">Bu sözleşmede cezai şart var mı?</button>
+            <button data-prompt="Dilekçe taslağı oluştur" class="suggested-prompt text-xs font-medium text-navy bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-full transition">Dilekçe taslağı oluştur</button>
+          </div>
+        </div>
+
+        <div id="typingIndicator" class="hidden pt-2">
+          <div class="chat-bubble-ai inline-flex gap-1 rounded-2xl rounded-tl-sm px-4 py-3">
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+          </div>
+        </div>
+
+        <form id="chatForm" class="shrink-0 border border-slate-200 rounded-xl p-2 flex items-end gap-2 mt-3 bg-white">
+          <button type="button" id="attachBtn" title="Dosya ekle" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-navy transition shrink-0">
+            <i data-lucide="paperclip" class="w-4 h-4"></i>
+          </button>
+          <input id="chatInput" type="text" autocomplete="off" placeholder="Dosya hakkında bir soru sorun..."
+            class="flex-1 text-sm py-2 focus:outline-none" />
+          <button type="submit" id="chatSendBtn" class="bg-navy hover:bg-navy-light text-white rounded-lg w-9 h-9 flex items-center justify-center shrink-0 transition disabled:opacity-50">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+        <input id="attachInput" type="file" class="hidden" />
+      </div>
+
+      <!-- ============ PDF view ============ -->
+      <div id="pdfView" class="hidden flex-1 flex-col min-h-0">
+        <div class="shrink-0 flex items-center gap-1.5 px-4 sm:px-6 pb-3 border-b border-slate-100 flex-wrap">
+          <button id="zoomOutBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Uzaklaştır"><i data-lucide="zoom-out" class="w-4 h-4"></i></button>
+          <span id="zoomLabel" class="text-xs font-semibold text-slate-500 w-10 text-center">100%</span>
+          <button id="zoomInBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Yakınlaştır"><i data-lucide="zoom-in" class="w-4 h-4"></i></button>
+          <button id="fitWidthBtn" class="text-xs font-semibold text-slate-500 hover:text-navy px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition">Sayfaya Sığdır</button>
+
+          <div class="h-5 w-px bg-slate-200 mx-1"></div>
+
+          <button id="prevPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Önceki sayfa"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+          <span id="pageLabel" class="text-xs font-semibold text-slate-500">Sayfa 1 / 42</span>
+          <button id="nextPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Sonraki sayfa"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+
+          <div class="flex-1"></div>
+
+          <button id="downloadPdfBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="İndir"><i data-lucide="download" class="w-4 h-4"></i></button>
+          <button id="fullscreenBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Tam ekran"><i data-lucide="maximize" class="w-4 h-4"></i></button>
+        </div>
+
+        <div id="pdfScrollArea" class="flex-1 overflow-y-auto bg-slate-100 flex flex-col items-center gap-6 py-8 px-4">
+          <div id="pdfSkeleton" class="w-full max-w-lg space-y-3">
+            <div class="skeleton w-full aspect-[1/1.33] rounded-lg"></div>
+            <p class="text-xs text-slate-400 text-center">PDF yükleniyor...</p>
+          </div>
+          <div id="pdfPages" class="hidden w-full flex flex-col items-center gap-6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================= RIGHT: AI ANALYSIS PANEL ======================= -->
+    <aside class="w-full lg:w-96 shrink-0 bg-slate-50 lg:overflow-y-auto lg:h-full border-t lg:border-t-0 border-slate-200">
+      <div class="p-5 space-y-4">
+        <div class="flex items-center justify-between px-0.5">
+          <h2 class="text-sm font-bold text-navy uppercase tracking-wide">AI Analiz Paneli</h2>
+          <i data-lucide="sparkles" class="w-4 h-4 text-gold"></i>
+        </div>
+
+        <!-- Card 1: Dava Özeti -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-navy">Dava Özeti</h3>
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div id="summaryEmpty" class="text-xs text-slate-400 mt-2">Henüz bir özet oluşturulmadı.</div>
+          <div id="summaryLoading" class="hidden mt-3 space-y-2">
+            <div class="skeleton h-3 w-full rounded"></div>
+            <div class="skeleton h-3 w-5/6 rounded"></div>
+            <div class="skeleton h-3 w-3/4 rounded"></div>
+          </div>
+          <p id="summaryContent" class="hidden text-xs text-slate-600 leading-relaxed mt-2 whitespace-pre-line"></p>
+          <button id="summaryBtn" class="w-full mt-3 flex items-center justify-center gap-1.5 bg-navy hover:bg-navy-light text-white text-xs font-semibold py-2.5 rounded-lg transition">
+            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Özet Oluştur
+          </button>
+        </div>
+
+        <!-- Card 2: Riskli Maddeler -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-navy">Riskli Maddeler</h3>
+            <i data-lucide="shield-alert" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div id="riskEmpty" class="text-xs text-slate-400 mt-2">Henüz risk analizi yapılmadı.</div>
+          <div id="riskLoading" class="hidden mt-3 space-y-2">
+            <div class="skeleton h-8 w-full rounded-lg"></div>
+            <div class="skeleton h-8 w-full rounded-lg"></div>
+          </div>
+          <ul id="riskList" class="hidden mt-3 space-y-2"></ul>
+          <button id="riskBtn" class="w-full mt-3 flex items-center justify-center gap-1.5 bg-navy hover:bg-navy-light text-white text-xs font-semibold py-2.5 rounded-lg transition">
+            <i data-lucide="scan-search" class="w-3.5 h-3.5"></i> Analiz Et
+          </button>
+        </div>
+
+        <!-- Card 3: Dilekçe Taslağı -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-navy">Dilekçe Taslağı</h3>
+            <i data-lucide="scroll-text" class="w-4 h-4 text-slate-400"></i>
+          </div>
+          <div id="draftEmpty" class="text-xs text-slate-400 mt-2">Henüz taslak oluşturulmadı.</div>
+          <div id="draftLoading" class="hidden mt-3 space-y-2">
+            <div class="skeleton h-3 w-full rounded"></div>
+            <div class="skeleton h-3 w-full rounded"></div>
+            <div class="skeleton h-3 w-4/5 rounded"></div>
+          </div>
+          <div id="draftContentWrap" class="hidden mt-2.5">
+            <p id="draftContent" class="text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto whitespace-pre-line bg-slate-50 rounded-lg p-2.5 border border-slate-100"></p>
+            <div class="flex items-center gap-2 mt-2.5">
+              <button id="draftDownloadBtn" class="flex-1 flex items-center justify-center gap-1.5 border border-slate-200 hover:border-navy text-navy text-xs font-semibold py-2 rounded-lg transition"><i data-lucide="download" class="w-3.5 h-3.5"></i> İndir</button>
+              <button id="draftCopyBtn" class="flex-1 flex items-center justify-center gap-1.5 border border-slate-200 hover:border-navy text-navy text-xs font-semibold py-2 rounded-lg transition"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Kopyala</button>
+            </div>
+          </div>
+          <button id="draftBtn" class="w-full mt-3 flex items-center justify-center gap-1.5 bg-navy hover:bg-navy-light text-white text-xs font-semibold py-2.5 rounded-lg transition">
+            <i data-lucide="file-plus-2" class="w-3.5 h-3.5"></i> Taslak Oluştur
+          </button>
+        </div>
+
+        <!-- Card 4: AI Confidence -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <h3 class="text-sm font-semibold text-navy mb-3">AI Güven Skoru</h3>
+          <div class="flex items-center gap-4">
+            <svg width="64" height="64" viewBox="0 0 64 64" class="shrink-0 -rotate-90">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="7" />
+              <circle id="confidenceRing" cx="32" cy="32" r="26" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"
+                stroke-dasharray="163.4" stroke-dashoffset="163.4" />
+            </svg>
+            <div>
+              <p class="text-2xl font-bold text-navy"><span id="confidenceValue">0</span>%</p>
+              <p class="text-xs text-slate-400 mt-0.5">Yüksek güvenilirlik</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Recent AI Actions -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <h3 class="text-sm font-semibold text-navy mb-3">Son AI İşlemleri</h3>
+          <ol id="timelineList" class="relative space-y-4 pl-1"></ol>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ======================= Floating AI assistant ======================= -->
+<button id="floatingAssistant" class="assistant-ring fixed bottom-6 right-6 w-14 h-14 rounded-full bg-navy text-white flex items-center justify-center shadow-[0_16px_32px_-12px_rgba(15,23,42,0.4)] hover:bg-navy-light transition z-40" aria-label="AI asistanı aç">
+  <i data-lucide="message-circle" class="w-6 h-6 text-gold"></i>
+</button>
+
+<!-- ======================= Command palette (⌘K) ======================= -->
+<div id="commandPalette" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-start justify-center z-[70] px-4 pt-24">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-lg overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      <input id="paletteInput" type="text" placeholder="Dava ara veya sayfaya git..." autocomplete="off" class="flex-1 text-sm focus:outline-none" />
+      <kbd class="text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">ESC</kbd>
+    </div>
+    <div id="paletteResults" class="max-h-80 overflow-y-auto py-2"></div>
+  </div>
+</div>
+
+<!-- ======================= Toast container =======================
+     bottom-24 (not bottom-5 like other pages) — clears the floating
+     AI assistant button in this page's bottom-right corner. -->
+<div id="toastContainer" class="fixed bottom-24 right-6 z-[60] flex flex-col gap-2.5 items-end"></div>
+
+<script type="module">
+  import { TOKEN_KEY } from './js/config/env.js';
+  import { request, clearSession } from './js/api/http.js';
+  import { escapeHtml } from './js/utils/sanitize.js';
+
+  /* =========================================================
+     Auth guard — redirect to login if no session exists.
+     login.html falls back to a demo token when the backend
+     is unreachable, so this never permanently locks you out.
+  ========================================================= */
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'login.html';
+  }
+
+  function logout() {
+    clearSession();
+    window.location.href = 'login.html';
+  }
+
+  /* =========================================================
+     Config
+  ========================================================= */
+  const TOTAL_PAGES = 42;
+
+  /* =========================================================
+     Sidebar drawer + profile dropdown — shared shell behavior
+  ========================================================= */
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  });
+  sidebarBackdrop.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  });
+
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+  document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  /* ---------------- Command palette (⌘K) ---------------- */
+  const PALETTE_NAV = [
+    { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
+    { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
+    { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+  ];
+  const PALETTE_CASES = [
+    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
+    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
+  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+
+  const palette = document.getElementById('commandPalette');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+
+  function openPalette() {
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    paletteInput.value = '';
+    renderPaletteResults('');
+    setTimeout(() => paletteInput.focus(), 10);
+  }
+  function closePalette() {
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  }
+  function paletteSection(title, items) {
+    if (items.length === 0) return '';
+    return `<p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">${title}</p>` +
+      items.map((i) => `
+        <button data-href="${i.href}" class="palette-item w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition text-left">
+          <i data-lucide="${i.icon}" class="w-4 h-4 text-slate-400"></i> ${i.label}
+        </button>
+      `).join('');
+  }
+  function renderPaletteResults(query) {
+    const q = query.trim().toLowerCase();
+    const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
+    const caseMatches = PALETTE_CASES.filter((i) => i.label.toLowerCase().includes(q));
+    const html = paletteSection('Sayfalar', navMatches) + paletteSection('Davalar', caseMatches);
+    paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
+    lucide.createIcons();
+    paletteResults.querySelectorAll('.palette-item').forEach((btn) => {
+      btn.addEventListener('click', () => { window.location.href = btn.dataset.href; });
+    });
+  }
+  paletteInput.addEventListener('input', () => renderPaletteResults(paletteInput.value));
+  document.getElementById('openPaletteBtn').addEventListener('click', openPalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', () => showToast('Premium yükseltme akışı yakında eklenecek.', 'info'));
+
+  /* =========================================================
+     Toasts — success / warning / error / info
+  ========================================================= */
+  function showToast(message, variant = 'success') {
+    const iconMap = { success: 'check-circle-2', warning: 'alert-triangle', error: 'alert-circle', info: 'info' };
+    const accentMap = { success: 'text-emerald-600', warning: 'text-amber-600', error: 'text-red-600', info: 'text-navy' };
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-in flex items-center gap-2.5 bg-white border border-slate-200 shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] rounded-xl px-4 py-3 text-sm text-navy min-w-[240px] max-w-sm';
+    toast.innerHTML = `<i data-lucide="${iconMap[variant]}" class="w-4 h-4 ${accentMap[variant]} shrink-0"></i><span>${escapeHtml(message)}</span>`;
+    document.getElementById('toastContainer').appendChild(toast);
+    lucide.createIcons();
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .2s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+    }, 3500);
+  }
+
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  /* =========================================================
+     Tabs: AI Sohbet / PDF Önizleme
+  ========================================================= */
+  const tabChatBtn = document.getElementById('tabChatBtn');
+  const tabPdfBtn = document.getElementById('tabPdfBtn');
+  const chatView = document.getElementById('chatView');
+  const pdfView = document.getElementById('pdfView');
+  let pdfLoaded = false;
+
+  function setDashboardTab(tab) {
+    const isChat = tab === 'chat';
+    chatView.classList.toggle('hidden', !isChat);
+    chatView.classList.toggle('flex', isChat);
+    pdfView.classList.toggle('hidden', isChat);
+    pdfView.classList.toggle('flex', !isChat);
+
+    tabChatBtn.classList.toggle('bg-white', isChat);
+    tabChatBtn.classList.toggle('shadow', isChat);
+    tabChatBtn.classList.toggle('text-navy', isChat);
+    tabChatBtn.classList.toggle('text-slate-500', !isChat);
+    tabPdfBtn.classList.toggle('bg-white', !isChat);
+    tabPdfBtn.classList.toggle('shadow', !isChat);
+    tabPdfBtn.classList.toggle('text-navy', !isChat);
+    tabPdfBtn.classList.toggle('text-slate-500', isChat);
+
+    if (!isChat && !pdfLoaded) loadPdfPreview();
+  }
+  tabChatBtn.addEventListener('click', () => setDashboardTab('chat'));
+  tabPdfBtn.addEventListener('click', () => setDashboardTab('pdf'));
+
+  /* =========================================================
+     PDF viewer — zoom / page nav / fullscreen / fake pages
+  ========================================================= */
+  let zoomPct = 100;
+  let currentPage = 1;
+
+  async function loadPdfPreview() {
+    pdfLoaded = true;
+    await sleep(700);
+    document.getElementById('pdfSkeleton').classList.add('hidden');
+    const pagesWrap = document.getElementById('pdfPages');
+    pagesWrap.classList.remove('hidden');
+    pagesWrap.innerHTML = [1, 2, 3].map((n) => `
+      <div class="page-shadow bg-white rounded-sm w-full max-w-lg p-8 space-y-2.5 fade-in">
+        <div class="h-3 w-1/3 bg-slate-200 rounded"></div>
+        <div class="h-2 w-full bg-slate-100 rounded mt-4"></div>
+        <div class="h-2 w-full bg-slate-100 rounded"></div>
+        <div class="h-2 w-5/6 bg-slate-100 rounded"></div>
+        <div class="h-2 w-full bg-slate-100 rounded mt-3"></div>
+        <div class="h-2 w-4/6 bg-slate-100 rounded"></div>
+        <div class="h-2 w-full bg-slate-100 rounded mt-3"></div>
+        <div class="h-2 w-3/6 bg-slate-100 rounded"></div>
+        <p class="text-[10px] text-slate-300 text-right pt-4">Sayfa ${n}</p>
+      </div>
+    `).join('');
+  }
+
+  function updateZoomLabel() { document.getElementById('zoomLabel').textContent = `${zoomPct}%`; document.getElementById('pdfPages').style.maxWidth = `${zoomPct}%`; }
+  document.getElementById('zoomInBtn').addEventListener('click', () => { zoomPct = Math.min(zoomPct + 10, 200); updateZoomLabel(); });
+  document.getElementById('zoomOutBtn').addEventListener('click', () => { zoomPct = Math.max(zoomPct - 10, 50); updateZoomLabel(); });
+  document.getElementById('fitWidthBtn').addEventListener('click', () => { zoomPct = 100; updateZoomLabel(); });
+
+  function updatePageLabel() { document.getElementById('pageLabel').textContent = `Sayfa ${currentPage} / ${TOTAL_PAGES}`; }
+  document.getElementById('prevPageBtn').addEventListener('click', () => { currentPage = Math.max(currentPage - 1, 1); updatePageLabel(); });
+  document.getElementById('nextPageBtn').addEventListener('click', () => { currentPage = Math.min(currentPage + 1, TOTAL_PAGES); updatePageLabel(); });
+
+  document.getElementById('downloadPdfBtn').addEventListener('click', () => showToast('İndirme başlatıldı.', 'success'));
+  document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    const el = document.getElementById('pdfScrollArea');
+    if (!document.fullscreenElement) el.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+
+  /* =========================================================
+     Chat
+  ========================================================= */
+  const chatMessages = document.getElementById('chatMessages');
+  const chatEmptyState = document.getElementById('chatEmptyState');
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const typingIndicator = document.getElementById('typingIndicator');
+  let hasStartedChat = false;
+
+  function formatTime() {
+    return new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function appendMessage(text, sender) {
+    if (!hasStartedChat) {
+      hasStartedChat = true;
+      chatEmptyState.classList.add('hidden');
+      chatMessages.classList.remove('hidden');
+    }
+    const wrapper = document.createElement('div');
+    wrapper.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
+    const bubbleClass = sender === 'user' ? 'chat-bubble-user rounded-2xl rounded-tr-sm' : 'chat-bubble-ai rounded-2xl rounded-tl-sm';
+    wrapper.innerHTML = `
+      <div class="max-w-[85%] sm:max-w-md">
+        <div class="${bubbleClass} px-4 py-3 text-sm leading-relaxed fade-in"></div>
+        <p class="text-[10px] text-slate-400 mt-1 ${sender === 'user' ? 'text-right' : 'text-left'}">${formatTime()}</p>
+      </div>
+    `;
+    wrapper.querySelector(`.${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`).textContent = text;
+    chatMessages.appendChild(wrapper);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function canned(question) {
+    const q = question.toLowerCase();
+    if (q.includes('özet')) return 'Bu dava, ABC Ltd. ile Sn. Yılmaz arasındaki hizmet sözleşmesinden doğan alacak talebini konu almaktadır. Sözleşme 14.03.2023 tarihinde imzalanmış olup, davalı tarafın ödeme yükümlülüğünü yerine getirmediği iddia edilmektedir.';
+    if (q.includes('risk')) return 'Dosyada 3 riskli madde tespit ettim: tek taraflı fesih hakkı, yüksek cezai şart oranı ve belirsiz yetkili mahkeme kaydı. Detayları sağdaki "Riskli Maddeler" panelinden inceleyebilirsiniz.';
+    if (q.includes('cezai')) return 'Evet, sözleşmenin 11. maddesinde cezai şart düzenlenmiştir. Oran, emsal sözleşmelere kıyasla yüksek görünmektedir — dikkatinizi öneririm.';
+    if (q.includes('dilekçe') || q.includes('taslak')) return 'Sağdaki "Dilekçe Taslağı" panelinden tek tıkla bir taslak oluşturabilirim. Oluşturduktan sonra indirip düzenleyebilirsiniz.';
+    return 'Sorunuzu aldım. Dosyayı inceleyerek en kısa sürede detaylı bir yanıt hazırlıyorum.';
+  }
+
+  async function askAI(question) {
+    typingIndicator.classList.remove('hidden');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+      const data = await request('/ai/chat', { method: 'POST', body: { question } });
+      appendMessage(data.answer, 'ai');
+    } catch (err) {
+      await sleep(1000 + Math.random() * 500);
+      appendMessage(canned(question), 'ai');
+    } finally {
+      typingIndicator.classList.add('hidden');
+    }
+  }
+
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const question = chatInput.value.trim();
+    if (!question) return;
+    appendMessage(question, 'user');
+    chatInput.value = '';
+    askAI(question);
+  });
+
+  document.querySelectorAll('.suggested-prompt').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      appendMessage(btn.dataset.prompt, 'user');
+      askAI(btn.dataset.prompt);
+    });
+  });
+
+  document.getElementById('attachBtn').addEventListener('click', () => document.getElementById('attachInput').click());
+  document.getElementById('attachInput').addEventListener('change', (e) => {
+    if (e.target.files[0]) showToast(`Eklendi: ${e.target.files[0].name}`, 'info');
+    e.target.value = '';
+  });
+
+  /* =========================================================
+     Floating AI assistant — jumps to chat + focuses input
+  ========================================================= */
+  document.getElementById('floatingAssistant').addEventListener('click', () => {
+    setDashboardTab('chat');
+    chatInput.focus();
+  });
+
+  /* =========================================================
+     Right panel — analysis cards
+  ========================================================= */
+  function toggleCardState(prefix, phase) {
+    document.getElementById(`${prefix}Empty`).classList.toggle('hidden', phase !== 'empty');
+    document.getElementById(`${prefix}Loading`).classList.toggle('hidden', phase !== 'loading');
+  }
+
+  function addTimelineEntry(label) {
+    const list = document.getElementById('timelineList');
+    const li = document.createElement('li');
+    li.className = 'flex items-start gap-3 fade-in';
+    li.innerHTML = `
+      <span class="w-2 h-2 rounded-full bg-navy mt-1.5 shrink-0"></span>
+      <div>
+        <p class="text-xs font-medium text-navy">${label}</p>
+        <p class="text-[11px] text-slate-400">az önce</p>
+      </div>
+    `;
+    list.prepend(li);
+  }
+
+  function animateConfidence(target) {
+    const circle = document.getElementById('confidenceRing');
+    const valueEl = document.getElementById('confidenceValue');
+    const circumference = 163.4;
+    let current = parseInt(valueEl.textContent, 10) || 0;
+    const direction = target >= current ? 1 : -1;
+    const step = () => {
+      current += direction * 2;
+      if ((direction > 0 && current > target) || (direction < 0 && current < target)) current = target;
+      circle.style.strokeDashoffset = circumference - (circumference * current) / 100;
+      valueEl.textContent = current;
+      if (current !== target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ---- Dava Özeti ----
+  document.getElementById('summaryBtn').addEventListener('click', async () => {
+    toggleCardState('summary', 'loading');
+    await sleep(1100);
+    document.getElementById('summaryContent').textContent = canned('özet');
+    toggleCardState('summary', 'done');
+    document.getElementById('summaryContent').classList.remove('hidden');
+    showToast('Özet oluşturuldu.', 'success');
+    addTimelineEntry('Özet oluşturuldu');
+    animateConfidence(96);
+  });
+
+  // ---- Riskli Maddeler ----
+  const RISK_ITEMS = [
+    { level: 'yuksek', label: 'Madde 7.2 — Tek taraflı fesih hakkı davalı lehine düzenlenmiş.' },
+    { level: 'orta', label: 'Madde 11 — Cezai şart oranı emsallerine göre yüksek.' },
+    { level: 'dusuk', label: 'Madde 15 — Yetkili mahkeme kaydında küçük belirsizlik.' },
+  ];
+  const RISK_STYLE = {
+    yuksek: 'bg-red-50 text-red-600',
+    orta: 'bg-amber-50 text-amber-600',
+    dusuk: 'bg-emerald-50 text-emerald-600',
+  };
+  const RISK_LABEL = { yuksek: 'Yüksek Risk', orta: 'Orta Risk', dusuk: 'Düşük Risk' };
+
+  document.getElementById('riskBtn').addEventListener('click', async () => {
+    toggleCardState('risk', 'loading');
+    await sleep(1300);
+    document.getElementById('riskList').innerHTML = RISK_ITEMS.map((item) => `
+      <li class="flex items-start gap-2.5 text-xs bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+        <span class="shrink-0 mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${RISK_STYLE[item.level]}">${RISK_LABEL[item.level]}</span>
+        <span class="text-slate-600 leading-relaxed">${item.label}</span>
+      </li>
+    `).join('');
+    toggleCardState('risk', 'done');
+    document.getElementById('riskList').classList.remove('hidden');
+    showToast('Risk analizi tamamlandı.', 'success');
+    addTimelineEntry('Risk analizi tamamlandı');
+    animateConfidence(94);
+  });
+
+  // ---- Dilekçe Taslağı (gated behind a single free generation) ----
+  let draftUsed = false;
+  document.getElementById('draftBtn').addEventListener('click', async () => {
+    if (draftUsed) {
+      showToast('Ücretsiz plan sınırına ulaştınız. Sınırsız taslak için Premium gerekli.', 'warning');
+      return;
+    }
+    toggleCardState('draft', 'loading');
+    await sleep(1300);
+    const draftText = 'Sayın Mahkeme Başkanlığı,\n\nMüvekkilim ile davalı taraf arasında akdedilen sözleşme kapsamında doğan alacağın tahsili talebiyle işbu davayı açma zarureti hasıl olmuştur...\n\n[Taslak, gerçek yapay zeka servisi bağlandığında tam metin olarak üretilecektir.]';
+    document.getElementById('draftContent').textContent = draftText;
+    toggleCardState('draft', 'done');
+    document.getElementById('draftContentWrap').classList.remove('hidden');
+    draftUsed = true;
+    showToast('Taslak oluşturuldu.', 'success');
+    addTimelineEntry('Taslak oluşturuldu');
+    animateConfidence(97);
+  });
+
+  document.getElementById('draftCopyBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('draftContent').textContent);
+    showToast('Taslak panoya kopyalandı.', 'success');
+  });
+
+  document.getElementById('draftDownloadBtn').addEventListener('click', () => {
+    const blob = new Blob([document.getElementById('draftContent').textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dilekce-taslagi.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Taslak indirildi.', 'success');
+  });
+
+  /* =========================================================
+     Init
+  ========================================================= */
+  updateZoomLabel();
+  updatePageLabel();
+
+  // Record this case as recently viewed — my-cases.html reads the same
+  // localStorage key to render its "Son Görüntülenenler" rail.
+  (function trackRecentCase(title) {
+    let recent = JSON.parse(localStorage.getItem('lexassist_recent_cases') || '[]');
+    recent = recent.filter((t) => t !== title);
+    recent.unshift(title);
+    localStorage.setItem('lexassist_recent_cases', JSON.stringify(recent.slice(0, 5)));
+  })('Yılmaz vs. ABC Ltd.');
+
+  lucide.createIcons();
+</script>
+</body>
+</html>

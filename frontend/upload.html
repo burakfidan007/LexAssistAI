@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PDF Yükle · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Dava dosyalarınızı güvenle yükleyin ve yapay zeka analizini başlatın" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root { --navy: #0f172a; --navy-light: #1e3a8a; --gold: #d4af37; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .gold-focus:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.28); }
+
+  .card-lift { transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }
+  .card-lift:hover { box-shadow: 0 12px 24px -8px rgba(15,23,42,0.12); transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn .35s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pop-in { animation: popIn .16s ease both; transform-origin: top right; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-in { animation: modalIn .22s ease both; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .toast-in { animation: toastIn .2s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sidebar-drawer { transition: transform .25s ease; }
+
+  /* Dropzone */
+  .dropzone { transition: border-color .2s ease, background-color .2s ease, transform .15s ease; }
+  .dropzone.drag-over { border-color: var(--gold); background-color: rgba(212,175,55,0.06); transform: scale(1.005); }
+  .dropzone.shake { animation: shake .35s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  /* Progress bar fill transition */
+  .progress-fill { transition: width .25s ease, background-color .3s ease; }
+
+  /* AI stepper connecting line + active pulse */
+  .step-dot { transition: background-color .25s ease, color .25s ease, border-color .25s ease; }
+  .step-active { animation: stepPulse 1.3s ease-in-out infinite; }
+  @keyframes stepPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(15,23,42,0.15); } 50% { box-shadow: 0 0 0 6px rgba(15,23,42,0); } }
+
+  .spin { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .fade-in, .pop-in, .modal-in, .toast-in, .sidebar-drawer, .dropzone, .progress-fill, .step-dot, .step-active, .spin {
+      animation: none !important; transition: none !important;
+    }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <aside id="sidebar" class="sidebar-drawer fixed lg:static inset-y-0 left-0 z-40 w-64 bg-navy text-white flex flex-col shrink-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center gap-2.5 px-6 py-6 border-b border-white/10">
+      <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center font-bold text-navy">L</div>
+      <span class="text-lg font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+      </a>
+      <a href="my-cases.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="briefcase" class="w-4 h-4"></i> Davalarım
+      </a>
+      <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
+        <i data-lucide="upload-cloud" class="w-4 h-4 text-gold"></i> PDF Yükle
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-white/10">
+      <div class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
+        <p class="text-sm font-semibold text-white">Kurumunuzu Premium'a yükseltin</p>
+        <ul class="mt-3 space-y-1.5 text-xs text-slate-300">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Sınırsız dava ve PDF yükleme</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
+        </ul>
+        <button class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 px-1 mt-4">
+        <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
+          <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- ---- Topbar ---- -->
+    <header class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6">
+      <button id="menuToggle" class="lg:hidden text-slate-500 hover:text-navy transition" aria-label="Menüyü aç">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <div class="hidden lg:flex items-center gap-2 shrink-0">
+        <div class="w-7 h-7 rounded-md bg-navy flex items-center justify-center font-bold text-gold text-xs">L</div>
+        <span class="text-sm font-semibold text-navy">PDF Yükle</span>
+      </div>
+
+      <div class="hidden md:block h-6 w-px bg-slate-200 shrink-0"></div>
+
+      <button id="openPaletteBtn" class="flex-1 max-w-md flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left">
+        <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+        <span class="flex-1 truncate">Dava ara veya sayfaya git...</span>
+        <kbd class="hidden sm:inline text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">⌘K</kbd>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
+        <i data-lucide="bell" class="w-5 h-5"></i>
+        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+      </button>
+
+      <div class="relative shrink-0">
+        <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
+          <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
+        </button>
+        <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
+          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <div class="h-px bg-slate-100 my-1.5"></div>
+          <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ---- Scrollable content ---- -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Page header -->
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-navy tracking-tight">PDF Yükle</h1>
+          <p class="text-sm text-slate-500 mt-1">Dava dosyalarınızı güvenli bir şekilde yükleyin ve yapay zekâ analizini başlatın.</p>
+        </div>
+
+        <!-- ================= Upload card ================= -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+
+          <!-- Dropzone (idle / drag state) -->
+          <div id="dropzone" class="dropzone border-2 border-dashed border-slate-300 rounded-2xl hover:border-navy/40 p-10 sm:p-14 flex flex-col items-center justify-center text-center cursor-pointer">
+            <div class="w-16 h-16 rounded-2xl bg-navy/5 flex items-center justify-center mb-5">
+              <i data-lucide="upload-cloud" class="w-8 h-8 text-navy"></i>
+            </div>
+            <p class="font-semibold text-navy text-base">Dosyanızı buraya sürükleyin</p>
+            <p class="text-sm text-slate-400 mt-1.5">veya bilgisayarınızdan seçmek için tıklayın</p>
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-5">
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i> Yalnızca PDF
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i> Maks. 25MB
+              </span>
+            </div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" class="hidden" />
+          </div>
+
+          <!-- Inline validation / limit error -->
+          <div id="dropzoneError" class="hidden mt-4 flex items-start gap-2.5 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+            <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i>
+            <span id="dropzoneErrorText"></span>
+          </div>
+
+          <!-- Selected file card -->
+          <div id="fileCard" class="hidden mt-2 fade-in">
+            <div class="border border-slate-200 rounded-xl p-4 sm:p-5">
+              <div class="flex items-start gap-4">
+                <div class="w-11 h-11 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+                  <i data-lucide="file-text" class="w-5 h-5 text-red-500"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-3">
+                    <p id="fileName" class="text-sm font-semibold text-navy truncate">dava_dosyasi.pdf</p>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button id="replaceFileBtn" title="Dosyayı değiştir" aria-label="Dosyayı değiştir" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-navy transition">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                      </button>
+                      <button id="removeFileBtn" title="Kaldır" aria-label="Dosyayı kaldır" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <p id="fileSize" class="text-xs text-slate-400 mt-0.5">0 KB</p>
+
+                  <div class="w-full h-2 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                    <div id="progressFill" class="progress-fill h-full bg-navy rounded-full" style="width: 0%"></div>
+                  </div>
+
+                  <div class="flex items-center justify-between mt-2">
+                    <span id="statusLabel" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                      <i data-lucide="clock" class="w-3.5 h-3.5"></i> Bekliyor
+                    </span>
+                    <span id="progressPercent" class="text-xs font-semibold text-slate-400">0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Error state actions -->
+              <div id="uploadErrorActions" class="hidden mt-4 flex items-center gap-2.5 text-sm">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i>
+                <span class="text-red-600 flex-1">Yükleme sırasında bir hata oluştu.</span>
+                <button id="retryUploadBtn" class="font-semibold text-navy hover:text-gold transition">Tekrar Dene</button>
+              </div>
+
+              <a id="openCaseAction" href="index.html" class="hidden mt-4 flex items-center justify-center gap-2 bg-navy hover:bg-navy-light text-white text-sm font-semibold py-2.5 rounded-lg transition">
+                <i data-lucide="folder-open" class="w-4 h-4"></i> Dosyayı Aç
+              </a>
+            </div>
+
+            <!-- AI Processing Card -->
+            <div id="aiProcessingCard" class="hidden mt-4 border border-slate-200 rounded-xl p-5 fade-in">
+              <div class="flex items-center gap-2 mb-5">
+                <i data-lucide="sparkles" class="w-4 h-4 text-gold"></i>
+                <h3 class="text-sm font-bold text-navy">Yapay Zeka Analiz Süreci</h3>
+              </div>
+              <ol id="aiSteps" class="space-y-4"></ol>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= Usage + Premium ================= -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          <!-- Free tier usage -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-bold text-navy">Ücretsiz Kullanım</h3>
+              <i data-lucide="gauge" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Aylık PDF Yükleme Limiti · 3 yükleme hakkı</p>
+
+            <div class="flex items-end justify-between mb-2">
+              <span id="usageLabel" class="text-2xl font-bold text-navy">2 / 3</span>
+              <span id="usageRemaining" class="text-xs font-semibold text-slate-500">1 yükleme hakkınız kaldı</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div id="usageBar" class="progress-fill h-full bg-gradient-to-r from-navy to-navy-light rounded-full" style="width: 66%"></div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-4 text-xs text-slate-400">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+              Sonraki yenileme: <span class="font-medium text-slate-600">1 Ağustos 2026</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">Limitiniz her ayın 1'inde otomatik olarak yenilenir.</p>
+          </div>
+
+          <!-- Premium upgrade -->
+          <div class="relative bg-navy rounded-2xl p-6 overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-gold/10"></div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="crown" class="w-4 h-4 text-gold"></i>
+                <h3 class="text-sm font-bold text-white">Premium'a Geçin</h3>
+              </div>
+              <p class="text-xs text-slate-300 mb-4">Sınırsız yükleme ve öncelikli AI analiziyle çalışın.</p>
+
+              <ul class="space-y-2 mb-5">
+                <li class="flex items-center gap-2 text-sm text-slate-200"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Sınırsız PDF yükleme</li>
+                <li class="flex items-center gap-2 text-sm text-slate-200"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Daha hızlı analiz</li>
+                <li class="flex items-center gap-2 text-sm text-slate-200"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Öncelikli işlem</li>
+                <li class="flex items-center gap-2 text-sm text-slate-200"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Gelişmiş AI araçları</li>
+                <li class="flex items-center gap-2 text-sm text-slate-200"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Premium destek</li>
+              </ul>
+
+              <button id="upgradeBtn" class="w-full flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-3 rounded-lg transition">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= Security indicators ================= -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4">
+            <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="lock" class="w-4 h-4 text-navy"></i></div>
+            <p class="text-xs font-medium text-slate-600 leading-snug">Verileriniz şifrelenerek saklanır</p>
+          </div>
+          <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4">
+            <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="shield-check" class="w-4 h-4 text-navy"></i></div>
+            <p class="text-xs font-medium text-slate-600 leading-snug">KVKK uyumlu</p>
+          </div>
+          <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4">
+            <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="box" class="w-4 h-4 text-navy"></i></div>
+            <p class="text-xs font-medium text-slate-600 leading-snug">Docker izole işlem</p>
+          </div>
+          <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4">
+            <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="file-check-2" class="w-4 h-4 text-navy"></i></div>
+            <p class="text-xs font-medium text-slate-600 leading-snug">PDF dosyaları güvenle analiz edilir</p>
+          </div>
+        </section>
+
+        <!-- ================= Upload history ================= -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-navy uppercase tracking-wide">Son Yüklemeler</h2>
+            <span id="historyCountLabel" class="text-xs text-slate-400"></span>
+          </div>
+
+          <!-- Desktop table -->
+          <div id="historyTableWrap" class="hidden md:block bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-100 text-left text-xs text-slate-400 uppercase tracking-wide">
+                  <th class="px-5 py-3 font-semibold">Dosya Adı</th>
+                  <th class="px-5 py-3 font-semibold">Dava</th>
+                  <th class="px-5 py-3 font-semibold">Yükleme Tarihi</th>
+                  <th class="px-5 py-3 font-semibold">Durum</th>
+                  <th class="px-5 py-3 font-semibold text-right">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+
+          <!-- Mobile cards -->
+          <div id="historyCards" class="md:hidden flex flex-col gap-3"></div>
+
+          <!-- Empty state -->
+          <div id="historyEmptyState" class="hidden flex-col items-center justify-center text-center py-16 bg-white border border-dashed border-slate-300 rounded-2xl">
+            <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <i data-lucide="inbox" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            <p class="font-semibold text-navy">Henüz yükleme geçmişiniz yok</p>
+            <p class="text-sm text-slate-400 mt-1 max-w-sm">Yüklediğiniz dosyalar ve analiz durumları burada listelenecek.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======================= Command palette (⌘K) ======================= -->
+<div id="commandPalette" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-start justify-center z-[70] px-4 pt-24">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-lg overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      <input id="paletteInput" type="text" placeholder="Dava ara veya sayfaya git..." autocomplete="off" class="flex-1 text-sm focus:outline-none" />
+      <kbd class="text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">ESC</kbd>
+    </div>
+    <div id="paletteResults" class="max-h-80 overflow-y-auto py-2"></div>
+  </div>
+</div>
+
+<!-- ======================= Toast container ======================= -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5"></div>
+
+<script type="module">
+  import { TOKEN_KEY, MAX_FILE_SIZE, FREE_TIER_UPLOAD_LIMIT } from './js/config/env.js';
+  import { request, clearSession } from './js/api/http.js';
+  import { escapeHtml } from './js/utils/sanitize.js';
+
+  /* =========================================================
+     Auth guard — redirect to login if no session exists.
+     login.html falls back to a demo token when the backend
+     is unreachable, so this never permanently locks you out.
+  ========================================================= */
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'login.html';
+  }
+
+  function logout() {
+    clearSession();
+    window.location.href = 'login.html';
+  }
+
+  const FREE_TIER_LIMIT = FREE_TIER_UPLOAD_LIMIT;
+
+  const STATUS_META = {
+    bekliyor: { label: 'Bekliyor', icon: 'clock', className: 'text-slate-500' },
+    yukleniyor: { label: 'Yükleniyor', icon: 'loader-circle', className: 'text-navy', spin: true },
+    isleniyor: { label: 'İşleniyor', icon: 'loader-circle', className: 'text-blue-600', spin: true },
+    tamamlandi: { label: 'Tamamlandı', icon: 'check-circle-2', className: 'text-emerald-600' },
+    basarisiz: { label: 'Başarısız', icon: 'alert-circle', className: 'text-red-600' },
+  };
+
+  const AI_STEPS = [
+    'PDF yükleniyor',
+    'Metin çıkarılıyor',
+    'Yapay zekâ analiz ediyor',
+    'Risk analizi hazırlanıyor',
+    'Analiz tamamlandı',
+  ];
+
+  /* =========================================================
+     State
+  ========================================================= */
+  const state = {
+    usedCount: 2,
+    history: [
+      { id: 'h1', fileName: 'yilmaz_sozlesme.pdf', caseName: 'Yılmaz vs. ABC Ltd.', date: '14 Tem 2026', status: 'tamamlandi', size: '2.4 MB' },
+      { id: 'h2', fileName: 'kurtulus_is_sozlesmesi.pdf', caseName: 'Kurtuluş İş Davası', date: '12 Tem 2026', status: 'tamamlandi', size: '1.1 MB' },
+      { id: 'h3', fileName: 'demir_kira_sozlesmesi.pdf', caseName: 'Demir Kira Sözleşmesi İhtilafı', date: '9 Tem 2026', status: 'basarisiz', size: '4.7 MB' },
+    ],
+  };
+
+  /* =========================================================
+     Sidebar (mobile drawer) + profile dropdown — shared shell
+  ========================================================= */
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  });
+  sidebarBackdrop.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  });
+
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+  document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  /* ---------------- Command palette (⌘K) ---------------- */
+  const PALETTE_NAV = [
+    { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
+    { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
+    { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+  ];
+  const PALETTE_CASES = [
+    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
+    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
+  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+
+  const palette = document.getElementById('commandPalette');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+
+  function openPalette() {
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    paletteInput.value = '';
+    renderPaletteResults('');
+    setTimeout(() => paletteInput.focus(), 10);
+  }
+  function closePalette() {
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  }
+  function paletteSection(title, items) {
+    if (items.length === 0) return '';
+    return `<p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">${title}</p>` +
+      items.map((i) => `
+        <button data-href="${i.href}" class="palette-item w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition text-left">
+          <i data-lucide="${i.icon}" class="w-4 h-4 text-slate-400"></i> ${i.label}
+        </button>
+      `).join('');
+  }
+  function renderPaletteResults(query) {
+    const q = query.trim().toLowerCase();
+    const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
+    const caseMatches = PALETTE_CASES.filter((i) => i.label.toLowerCase().includes(q));
+    const html = paletteSection('Sayfalar', navMatches) + paletteSection('Davalar', caseMatches);
+    paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
+    lucide.createIcons();
+    paletteResults.querySelectorAll('.palette-item').forEach((btn) => {
+      btn.addEventListener('click', () => { window.location.href = btn.dataset.href; });
+    });
+  }
+  paletteInput.addEventListener('input', () => renderPaletteResults(paletteInput.value));
+  document.getElementById('openPaletteBtn').addEventListener('click', openPalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+
+  /* =========================================================
+     Toasts
+  ========================================================= */
+  function showToast(message, variant = 'success', action = null) {
+    const container = document.getElementById('toastContainer');
+    const icon = variant === 'success' ? 'check-circle-2' : variant === 'error' ? 'alert-circle' : 'info';
+    const accent = variant === 'success' ? 'text-emerald-600' : variant === 'error' ? 'text-red-600' : 'text-navy';
+    const actionHTML = action ? `<a href="${action.href}" class="font-semibold text-navy hover:text-gold transition shrink-0">${action.label}</a>` : '';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-in flex items-center gap-2.5 bg-white border border-slate-200 shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] rounded-xl px-4 py-3 text-sm text-navy min-w-[240px] max-w-sm';
+    toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${accent} shrink-0"></i><span class="flex-1">${escapeHtml(message)}</span>${actionHTML}`;
+    container.appendChild(toast);
+    lucide.createIcons();
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .2s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+    }, action ? 6000 : 3500);
+  }
+
+  /* =========================================================
+     Helpers
+  ========================================================= */
+  function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /* =========================================================
+     Dropzone — drag & drop / click-to-browse / validation
+  ========================================================= */
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const dropzoneError = document.getElementById('dropzoneError');
+  const dropzoneErrorText = document.getElementById('dropzoneErrorText');
+
+  function showDropzoneError(message) {
+    dropzoneErrorText.textContent = message;
+    dropzoneError.classList.remove('hidden');
+    dropzone.classList.add('shake');
+    setTimeout(() => dropzone.classList.remove('shake'), 350);
+  }
+  function hideDropzoneError() {
+    dropzoneError.classList.add('hidden');
+  }
+
+  function validateFile(file) {
+    if (state.usedCount >= FREE_TIER_LIMIT) {
+      return 'Aylık ücretsiz yükleme limitine ulaştınız. Devam etmek için Premium\'a geçin.';
+    }
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) return 'Yalnızca PDF dosyaları kabul edilir.';
+    if (file.size > MAX_FILE_SIZE) return 'Dosya boyutu 25MB sınırını aşıyor.';
+    return null;
+  }
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleFileSelected(fileInput.files[0]);
+    fileInput.value = '';
+  });
+
+  ['dragenter', 'dragover'].forEach((evt) =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); })
+  );
+  ['dragleave', 'drop'].forEach((evt) =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag-over'); })
+  );
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelected(file);
+  });
+
+  function handleFileSelected(file) {
+    hideDropzoneError();
+    const error = validateFile(file);
+    if (error) {
+      showDropzoneError(error);
+      return;
+    }
+    dropzone.classList.add('hidden');
+    startUpload(file);
+  }
+
+  /* =========================================================
+     Selected file card + progress state machine
+     States: bekliyor -> yukleniyor -> isleniyor -> tamamlandi
+                                              \-> basarisiz
+  ========================================================= */
+  const fileCard = document.getElementById('fileCard');
+  const fileNameEl = document.getElementById('fileName');
+  const fileSizeEl = document.getElementById('fileSize');
+  const progressFill = document.getElementById('progressFill');
+  const progressPercent = document.getElementById('progressPercent');
+  const statusLabel = document.getElementById('statusLabel');
+  const uploadErrorActions = document.getElementById('uploadErrorActions');
+  const aiProcessingCard = document.getElementById('aiProcessingCard');
+  const aiStepsList = document.getElementById('aiSteps');
+
+  let currentFile = null;
+
+  function setStatus(key) {
+    const meta = STATUS_META[key];
+    statusLabel.innerHTML = `<i data-lucide="${meta.icon}" class="w-3.5 h-3.5 ${meta.spin ? 'spin' : ''}"></i> ${meta.label}`;
+    statusLabel.className = `inline-flex items-center gap-1.5 text-xs font-semibold ${meta.className}`;
+
+    const barColor = key === 'basarisiz' ? 'bg-red-500' : key === 'tamamlandi' ? 'bg-emerald-500' : 'bg-navy';
+    progressFill.className = `progress-fill h-full ${barColor} rounded-full`;
+
+    uploadErrorActions.classList.toggle('hidden', key !== 'basarisiz');
+    lucide.createIcons();
+  }
+
+  function setProgress(pct) {
+    progressFill.style.width = `${pct}%`;
+    progressPercent.textContent = `${Math.round(pct)}%`;
+  }
+
+  async function animateProgress(from, to, duration) {
+    const start = performance.now();
+    return new Promise((resolve) => {
+      function tick(now) {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / duration, 1);
+        setProgress(from + (to - from) * t);
+        if (t < 1) requestAnimationFrame(tick);
+        else resolve();
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  function renderAiSteps(activeIndex) {
+    aiStepsList.innerHTML = AI_STEPS.map((label, i) => {
+      const isDone = i < activeIndex;
+      const isActive = i === activeIndex;
+      const dotClasses = isDone
+        ? 'bg-emerald-500 border-emerald-500 text-white'
+        : isActive
+          ? 'bg-navy border-navy text-white step-active'
+          : 'bg-white border-slate-300 text-slate-400';
+      const textClasses = isDone || isActive ? 'text-navy font-medium' : 'text-slate-400';
+      const icon = isDone ? 'check' : isActive ? 'loader-circle' : '';
+
+      return `
+        <li class="flex items-center gap-3">
+          <span class="step-dot w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-semibold shrink-0 ${dotClasses}">
+            ${icon ? `<i data-lucide="${icon}" class="w-3.5 h-3.5 ${isActive ? 'spin' : ''}"></i>` : i + 1}
+          </span>
+          <span class="text-sm ${textClasses}">${label}</span>
+        </li>
+      `;
+    }).join('');
+    lucide.createIcons();
+  }
+
+  async function startUpload(file) {
+    currentFile = file;
+    fileNameEl.textContent = file.name;
+    fileSizeEl.textContent = formatFileSize(file.size);
+    fileCard.classList.remove('hidden');
+    aiProcessingCard.classList.add('hidden');
+    document.getElementById('openCaseAction').classList.add('hidden');
+    setStatus('bekliyor');
+    setProgress(0);
+
+    await sleep(300);
+    await uploadThenAnalyze(file);
+  }
+
+  async function uploadThenAnalyze(file) {
+    setStatus('yukleniyor');
+
+    // Attempt real backend upload; falls back to local simulation until
+    // the /api/uploads endpoint exists (see docker-compose.yml backend service).
+    const formData = new FormData();
+    formData.append('file', file);
+    request('/uploads', { method: 'POST', body: formData }).catch(() => {});
+
+    await animateProgress(0, 100, 1600);
+
+    setStatus('isleniyor');
+    aiProcessingCard.classList.remove('hidden');
+
+    for (let i = 0; i < AI_STEPS.length; i++) {
+      renderAiSteps(i);
+      await sleep(550);
+    }
+    renderAiSteps(AI_STEPS.length);
+
+    completeUpload(file);
+  }
+
+  function completeUpload(file) {
+    setStatus('tamamlandi');
+    state.usedCount += 1;
+    renderUsage();
+
+    state.history.unshift({
+      id: String(Date.now()),
+      fileName: file.name,
+      caseName: '—',
+      date: 'az önce',
+      status: 'tamamlandi',
+      size: formatFileSize(file.size),
+    });
+    renderHistory();
+
+    document.getElementById('openCaseAction').classList.remove('hidden');
+
+    showToast('Yükleme tamamlandı.', 'success');
+    setTimeout(() => showToast('Analiz tamamlandı — sonuçlar davanızda hazır.', 'success', { label: 'Dosyayı Aç', href: 'index.html' }), 500);
+  }
+
+  function resetUploadCard() {
+    currentFile = null;
+    fileCard.classList.add('hidden');
+    aiProcessingCard.classList.add('hidden');
+    document.getElementById('openCaseAction').classList.add('hidden');
+    dropzone.classList.remove('hidden');
+    setProgress(0);
+  }
+
+  document.getElementById('removeFileBtn').addEventListener('click', () => {
+    resetUploadCard();
+    showToast('Yükleme iptal edildi.', 'info');
+  });
+
+  document.getElementById('replaceFileBtn').addEventListener('click', () => {
+    resetUploadCard();
+    fileInput.click();
+  });
+
+  document.getElementById('retryUploadBtn').addEventListener('click', () => {
+    if (currentFile) uploadThenAnalyze(currentFile);
+  });
+
+  /* =========================================================
+     Free tier usage
+  ========================================================= */
+  function renderUsage() {
+    const used = Math.min(state.usedCount, FREE_TIER_LIMIT);
+    const remaining = Math.max(FREE_TIER_LIMIT - used, 0);
+    document.getElementById('usageLabel').textContent = `${used} / ${FREE_TIER_LIMIT}`;
+    document.getElementById('usageRemaining').textContent =
+      remaining > 0 ? `${remaining} yükleme hakkınız kaldı` : 'Yükleme hakkınız kalmadı';
+    document.getElementById('usageBar').style.width = `${(used / FREE_TIER_LIMIT) * 100}%`;
+  }
+
+  document.getElementById('upgradeBtn').addEventListener('click', () => {
+    showToast('Premium yükseltme akışı yakında eklenecek.', 'info');
+  });
+
+  /* =========================================================
+     Upload history — table (desktop) + cards (mobile)
+  ========================================================= */
+  function historyActionsHTML(item) {
+    const retry = item.status === 'basarisiz'
+      ? `<button data-action="retry-history" data-id="${item.id}" title="Tekrar Dene" aria-label="Tekrar dene" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-navy transition"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>`
+      : '';
+    return `
+      <button data-action="view-history" data-id="${item.id}" title="Görüntüle" aria-label="Dosyayı görüntüle" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-navy transition"><i data-lucide="eye" class="w-4 h-4"></i></button>
+      ${retry}
+      <button data-action="delete-history" data-id="${item.id}" title="Kaldır" aria-label="Geçmişten kaldır" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    `;
+  }
+
+  function renderHistory() {
+    const tbody = document.getElementById('historyTableBody');
+    const cards = document.getElementById('historyCards');
+    const emptyState = document.getElementById('historyEmptyState');
+    const tableWrap = document.getElementById('historyTableWrap');
+    const countLabel = document.getElementById('historyCountLabel');
+
+    if (state.history.length === 0) {
+      tableWrap.classList.add('hidden');
+      cards.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+      emptyState.classList.add('flex');
+      countLabel.textContent = '';
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    emptyState.classList.remove('flex');
+    tableWrap.classList.remove('hidden');
+    cards.classList.remove('hidden');
+    countLabel.textContent = `${state.history.length} dosya`;
+
+    tbody.innerHTML = state.history.map((item) => {
+      const meta = STATUS_META[item.status];
+      const safeFileName = escapeHtml(item.fileName);
+      const safeCaseName = escapeHtml(item.caseName);
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="text-sm font-medium text-navy truncate">${safeFileName}</span>
+            </div>
+          </td>
+          <td class="px-5 py-3.5 text-sm text-slate-500 truncate max-w-[200px]">${safeCaseName}</td>
+          <td class="px-5 py-3.5 text-sm text-slate-500">${item.date}</td>
+          <td class="px-5 py-3.5">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold ${meta.className}">
+              <i data-lucide="${meta.icon}" class="w-3.5 h-3.5 ${meta.spin ? 'spin' : ''}"></i> ${meta.label}
+            </span>
+          </td>
+          <td class="px-5 py-3.5">
+            <div class="flex items-center justify-end gap-1">${historyActionsHTML(item)}</div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    cards.innerHTML = state.history.map((item) => {
+      const meta = STATUS_META[item.status];
+      const safeFileName = escapeHtml(item.fileName);
+      const safeCaseName = escapeHtml(item.caseName);
+      return `
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <span class="text-sm font-medium text-navy truncate">${safeFileName}</span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold shrink-0 ${meta.className}">
+              <i data-lucide="${meta.icon}" class="w-3.5 h-3.5 ${meta.spin ? 'spin' : ''}"></i> ${meta.label}
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1.5">${safeCaseName} · ${item.date}</p>
+          <div class="flex items-center gap-1 mt-3 pt-3 border-t border-slate-100">${historyActionsHTML(item)}</div>
+        </div>
+      `;
+    }).join('');
+
+    lucide.createIcons();
+    bindHistoryActions();
+  }
+
+  function bindHistoryActions() {
+    document.querySelectorAll('[data-action="view-history"]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const item = state.history.find((h) => h.id === btn.dataset.id);
+        if (item.status === 'tamamlandi') {
+          window.location.href = 'index.html';
+        } else {
+          showToast('Analiz tamamlanmadan dosya görüntülenemez.', 'info');
+        }
+      }));
+
+    document.querySelectorAll('[data-action="delete-history"]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        state.history = state.history.filter((h) => h.id !== btn.dataset.id);
+        renderHistory();
+        showToast('Geçmişten kaldırıldı.', 'info');
+      }));
+
+    document.querySelectorAll('[data-action="retry-history"]').forEach((btn) =>
+      btn.addEventListener('click', async () => {
+        const item = state.history.find((h) => h.id === btn.dataset.id);
+        item.status = 'isleniyor';
+        renderHistory();
+        await sleep(1200);
+        item.status = 'tamamlandi';
+        renderHistory();
+        showToast('Dosya başarıyla yeniden işlendi.', 'success');
+      }));
+  }
+
+  /* =========================================================
+     Init
+  ========================================================= */
+  renderUsage();
+  renderHistory();
+  lucide.createIcons();
+</script>
+</body>
+</html>

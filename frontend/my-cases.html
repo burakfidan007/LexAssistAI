@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Davalarım · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Dava dosyalarınızı tek yerden yönetin" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root { --navy: #0f172a; --navy-light: #1e3a8a; --gold: #d4af37; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .gold-focus:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.28); }
+
+  .card-lift { transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }
+  .card-lift:hover { box-shadow: 0 12px 24px -8px rgba(15,23,42,0.12); transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn .35s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pop-in { animation: popIn .16s ease both; transform-origin: top right; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-in { animation: modalIn .22s ease both; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .toast-in { animation: toastIn .2s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ai-pulse { animation: aiPulse 1.4s ease-in-out infinite; }
+  @keyframes aiPulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+
+  .sidebar-drawer { transition: transform .25s ease; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .fade-in, .pop-in, .modal-in, .toast-in, .ai-pulse, .sidebar-drawer { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <aside id="sidebar" class="sidebar-drawer fixed lg:static inset-y-0 left-0 z-40 w-64 bg-navy text-white flex flex-col shrink-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center gap-2.5 px-6 py-6 border-b border-white/10">
+      <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center font-bold text-navy">L</div>
+      <span class="text-lg font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+      </a>
+      <a href="my-cases.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
+        <i data-lucide="briefcase" class="w-4 h-4 text-gold"></i> Davalarım
+      </a>
+      <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-white/10">
+      <div class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
+        <p class="text-sm font-semibold text-white">Kurumunuzu Premium'a yükseltin</p>
+        <ul class="mt-3 space-y-1.5 text-xs text-slate-300">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Sınırsız dava ve PDF yükleme</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
+        </ul>
+        <button class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 px-1 mt-4">
+        <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
+          <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- ---- Topbar ---- -->
+    <header class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6">
+      <button id="menuToggle" class="lg:hidden text-slate-500 hover:text-navy transition" aria-label="Menüyü aç">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <div class="hidden lg:flex items-center gap-2 shrink-0">
+        <div class="w-7 h-7 rounded-md bg-navy flex items-center justify-center font-bold text-gold text-xs">L</div>
+        <span class="text-sm font-semibold text-navy">Davalarım</span>
+      </div>
+
+      <div class="hidden md:block h-6 w-px bg-slate-200 shrink-0"></div>
+
+      <button id="openPaletteBtn" class="flex-1 max-w-md flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left">
+        <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+        <span class="flex-1 truncate">Dava ara veya sayfaya git...</span>
+        <kbd class="hidden sm:inline text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">⌘K</kbd>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
+        <i data-lucide="bell" class="w-5 h-5"></i>
+        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+      </button>
+
+      <div class="relative shrink-0">
+        <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
+          <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
+        </button>
+        <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
+          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <div class="h-px bg-slate-100 my-1.5"></div>
+          <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ---- Scrollable content ---- -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Page header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-navy tracking-tight">Davalarım</h1>
+            <p class="text-sm text-slate-500 mt-1">Tüm dava dosyalarınızı tek yerden yönetin.</p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button id="newFolderBtn" class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:border-navy text-navy font-semibold text-sm px-4 py-2.5 rounded-lg transition">
+              <i data-lucide="folder-plus" class="w-4 h-4"></i> Yeni Klasör
+            </button>
+            <button id="newCaseBtn" class="inline-flex items-center gap-2 bg-navy hover:bg-navy-light text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition shadow-lg shadow-navy/20">
+              <i data-lucide="plus" class="w-4 h-4"></i> Yeni Dava
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick access: pinned + recently viewed -->
+        <section id="quickAccessSection" class="hidden space-y-4">
+          <div id="pinnedRail" class="hidden">
+            <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-3 flex items-center gap-1.5">
+              <i data-lucide="pin" class="w-3.5 h-3.5 text-gold"></i> Sabitlenenler
+            </h2>
+            <div id="pinnedList" class="flex gap-3 overflow-x-auto pb-1"></div>
+          </div>
+          <div id="recentRail" class="hidden">
+            <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-3 flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> Son Görüntülenenler
+            </h2>
+            <div id="recentList" class="flex gap-3 overflow-x-auto pb-1"></div>
+          </div>
+        </section>
+
+        <!-- Statistics cards -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-slate-200 rounded-xl p-5 card-lift">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Toplam Dava</span>
+              <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4 text-navy"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-navy mt-3">18</p>
+            <p class="text-xs text-emerald-600 mt-1 flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Bu ay +3</p>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5 card-lift">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Analiz Edilen</span>
+              <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-navy mt-3">12</p>
+            <p class="text-xs text-slate-400 mt-1">Toplamın %67'si</p>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5 card-lift">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Bekleyen</span>
+              <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4 text-amber-600"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-navy mt-3">6</p>
+            <p class="text-xs text-slate-400 mt-1">AI analizi sırada</p>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5 card-lift">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Premium Kullanımı</span>
+              <div class="w-9 h-9 rounded-lg bg-gold-light/40 flex items-center justify-center"><i data-lucide="gauge" class="w-4 h-4 text-gold"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-navy mt-3">%66</p>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full mt-2.5 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-navy to-navy-light rounded-full" style="width:66%"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Search & filters -->
+        <section class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col lg:flex-row lg:items-center gap-3">
+          <div class="relative flex-1 min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input id="caseSearch" type="text" placeholder="Dava veya müvekkil ara..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm gold-focus transition" />
+          </div>
+
+          <select id="statusFilter" class="text-sm border border-slate-200 rounded-lg px-3 py-2.5 gold-focus bg-white text-slate-600 shrink-0">
+            <option value="all">Tüm Durumlar</option>
+            <option value="devam">Devam Ediyor</option>
+            <option value="tamamlandi">Tamamlandı</option>
+            <option value="beklemede">Beklemede</option>
+          </select>
+
+          <select id="folderFilter" class="text-sm border border-slate-200 rounded-lg px-3 py-2.5 gold-focus bg-white text-slate-600 shrink-0">
+            <option value="all">Tüm Klasörler</option>
+            <option value="is-hukuku">İş Hukuku</option>
+            <option value="ceza-hukuku">Ceza Hukuku</option>
+            <option value="aile-hukuku">Aile Hukuku</option>
+            <option value="ticaret-hukuku">Ticaret Hukuku</option>
+            <option value="icra-dosyalari">İcra Dosyaları</option>
+          </select>
+
+          <select id="sortFilter" class="text-sm border border-slate-200 rounded-lg px-3 py-2.5 gold-focus bg-white text-slate-600 shrink-0">
+            <option value="recent">Son Güncellenen</option>
+            <option value="name">Dava Adı (A-Z)</option>
+            <option value="status">Duruma Göre</option>
+          </select>
+
+          <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1 shrink-0">
+            <button id="gridViewBtn" class="w-9 h-9 flex items-center justify-center rounded-md bg-white text-navy shadow transition" aria-label="Izgara görünümü">
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            </button>
+            <button id="listViewBtn" class="w-9 h-9 flex items-center justify-center rounded-md text-slate-400 transition" aria-label="Liste görünümü">
+              <i data-lucide="list" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Folders -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-navy uppercase tracking-wide">Klasörler</h2>
+            <button id="clearFolderFilter" class="hidden text-xs font-semibold text-navy-light hover:text-gold transition">Filtreyi Temizle</button>
+          </div>
+          <div id="foldersGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-4"></div>
+        </section>
+
+        <!-- Cases -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-navy uppercase tracking-wide">Davalar</h2>
+            <span id="caseCountLabel" class="text-xs text-slate-400"></span>
+          </div>
+
+          <div id="casesGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+          <div id="casesList" class="hidden flex-col gap-3"></div>
+
+          <!-- No-results empty state (search/filter yielded nothing) -->
+          <div id="noResultsState" class="hidden flex flex-col items-center justify-center text-center py-16">
+            <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <i data-lucide="search-x" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            <p class="font-semibold text-navy">Aramanızla eşleşen dava bulunamadı</p>
+            <p class="text-sm text-slate-400 mt-1 max-w-sm">Farklı bir anahtar kelime deneyin veya filtreleri temizleyin.</p>
+            <button id="clearAllFilters" class="mt-4 text-sm font-semibold text-navy-light hover:text-gold transition">Filtreleri Temizle</button>
+          </div>
+
+          <!-- True empty state (no cases at all) -->
+          <div id="trueEmptyState" class="hidden flex-col items-center justify-center text-center py-20 bg-white border border-dashed border-slate-300 rounded-2xl">
+            <div class="w-16 h-16 rounded-2xl bg-navy/5 flex items-center justify-center mb-5">
+              <i data-lucide="folder-open" class="w-7 h-7 text-navy"></i>
+            </div>
+            <h3 class="text-lg font-bold text-navy">Daha ilk davanızı oluşturmadınız.</h3>
+            <p class="text-sm text-slate-500 mt-2 max-w-sm">PDF dava dosyanızı yükleyin, yapay zeka saniyeler içinde analiz etmeye başlasın.</p>
+            <div class="flex items-center gap-3 mt-6">
+              <button class="inline-flex items-center gap-2 bg-navy hover:bg-navy-light text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition shadow-lg shadow-navy/20">
+                <i data-lucide="plus" class="w-4 h-4"></i> Yeni Dava Oluştur
+              </button>
+              <button class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:border-navy text-navy font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+                <i data-lucide="upload" class="w-4 h-4"></i> İçe Aktar
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======================= Delete confirmation dialog ======================= -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-center justify-center z-50 px-4" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-sm p-6">
+    <div class="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center mb-4">
+      <i data-lucide="trash-2" class="w-5 h-5 text-red-600"></i>
+    </div>
+    <h3 id="deleteModalTitle" class="text-base font-bold text-navy">Davayı silmek üzeresiniz</h3>
+    <p id="deleteModalText" class="text-sm text-slate-500 mt-1.5">Bu işlem geri alınamaz. Dava ve ilişkili tüm dosyalar kalıcı olarak silinecektir.</p>
+    <div class="flex gap-3 mt-6">
+      <button id="cancelDelete" class="flex-1 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">İptal</button>
+      <button id="confirmDelete" class="flex-1 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition">Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= New case modal ======================= -->
+<div id="newCaseModal" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-center justify-center z-50 px-4" role="dialog" aria-modal="true" aria-labelledby="newCaseModalTitle">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-md p-6">
+    <h3 id="newCaseModalTitle" class="text-lg font-bold text-navy mb-4">Yeni Dava Oluştur</h3>
+    <form id="newCaseForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Dava Adı</label>
+        <input name="title" required type="text" placeholder="Yılmaz vs. ABC Ltd."
+          class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Müvekkil</label>
+        <input name="client" type="text" placeholder="Müvekkil adı"
+          class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Klasör</label>
+        <select name="folder" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition bg-white">
+          <option value="is-hukuku">İş Hukuku</option>
+          <option value="ceza-hukuku">Ceza Hukuku</option>
+          <option value="aile-hukuku">Aile Hukuku</option>
+          <option value="ticaret-hukuku">Ticaret Hukuku</option>
+          <option value="icra-dosyalari">İcra Dosyaları</option>
+        </select>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="cancelNewCase" class="flex-1 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">İptal</button>
+        <button type="submit" class="flex-1 py-2.5 rounded-lg bg-navy hover:bg-navy-light text-white text-sm font-semibold transition">Oluştur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ======================= Command palette (⌘K) ======================= -->
+<div id="commandPalette" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-start justify-center z-[70] px-4 pt-24">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-lg overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      <input id="paletteInput" type="text" placeholder="Dava ara veya sayfaya git..." autocomplete="off" class="flex-1 text-sm focus:outline-none" />
+      <kbd class="text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">ESC</kbd>
+    </div>
+    <div id="paletteResults" class="max-h-80 overflow-y-auto py-2"></div>
+  </div>
+</div>
+
+<!-- ======================= Toast container ======================= -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5"></div>
+
+<script type="module">
+  import { TOKEN_KEY } from './js/config/env.js';
+  import { clearSession } from './js/api/http.js';
+  import { escapeHtml } from './js/utils/sanitize.js';
+
+  /* =========================================================
+     Auth guard — redirect to login if no session exists.
+     login.html falls back to a demo token when the backend
+     is unreachable, so this never permanently locks you out.
+  ========================================================= */
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'login.html';
+  }
+
+  function logout() {
+    clearSession();
+    window.location.href = 'login.html';
+  }
+
+  /* =========================================================
+     Modal a11y — focus trap + Escape-to-close + focus restore.
+     Applies to any element with role="dialog".
+  ========================================================= */
+  let modalReturnFocusEl = null;
+
+  function openModal(modal) {
+    modalReturnFocusEl = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.addEventListener('keydown', handleModalKeydown);
+    const focusable = modal.querySelector('button, input, select, textarea, [href]');
+    setTimeout(() => focusable?.focus(), 10);
+  }
+
+  function closeModal(modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.removeEventListener('keydown', handleModalKeydown);
+    modalReturnFocusEl?.focus();
+  }
+
+  function handleModalKeydown(e) {
+    const modal = document.querySelector('[role="dialog"]:not(.hidden)');
+    if (!modal) return;
+
+    if (e.key === 'Escape') {
+      closeModal(modal);
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  /* =========================================================
+     Demo data — replace with real API responses when the
+     backend is ready (GET /api/cases, GET /api/folders).
+  ========================================================= */
+  const FOLDERS = [
+    { id: 'is-hukuku', name: 'İş Hukuku', icon: 'briefcase', updatedAt: '2 gün önce' },
+    { id: 'ceza-hukuku', name: 'Ceza Hukuku', icon: 'gavel', updatedAt: '1 hafta önce' },
+    { id: 'aile-hukuku', name: 'Aile Hukuku', icon: 'users', updatedAt: '3 gün önce' },
+    { id: 'ticaret-hukuku', name: 'Ticaret Hukuku', icon: 'building-2', updatedAt: '5 gün önce' },
+    { id: 'icra-dosyalari', name: 'İcra Dosyaları', icon: 'file-warning', updatedAt: '1 gün önce' },
+  ];
+
+  let CASES = [
+    { id: '1', title: 'Yılmaz vs. ABC Ltd.', client: 'Ayşe Yılmaz', caseNumber: '2026/114', status: 'devam', folder: 'is-hukuku', lastActivity: '2 saat önce', pdfCount: 3, aiStatus: 'hazir', risk: 'orta', pinned: true },
+    { id: '2', title: 'Kurtuluş İş Davası', client: 'Mehmet Kurtuluş', caseNumber: '2026/098', status: 'devam', folder: 'is-hukuku', lastActivity: '5 saat önce', pdfCount: 1, aiStatus: 'isleniyor', risk: 'dusuk', pinned: false },
+    { id: '3', title: 'Demir Kira Sözleşmesi İhtilafı', client: 'Zeynep Demir', caseNumber: '2025/512', status: 'tamamlandi', folder: 'ticaret-hukuku', lastActivity: '3 hafta önce', pdfCount: 5, aiStatus: 'hazir', risk: 'kritik', pinned: false },
+    { id: '4', title: 'Aksoy Boşanma Davası', client: 'Elif Aksoy', caseNumber: '2026/037', status: 'beklemede', folder: 'aile-hukuku', lastActivity: '2 gün önce', pdfCount: 2, aiStatus: 'bekliyor', risk: 'dusuk', pinned: false },
+    { id: '5', title: 'Şahin Ceza Davası', client: 'Burak Şahin', caseNumber: '2026/201', status: 'devam', folder: 'ceza-hukuku', lastActivity: '1 gün önce', pdfCount: 4, aiStatus: 'hazir', risk: 'kritik', pinned: true },
+    { id: '6', title: 'Özkan İcra Takibi', client: 'Fatma Özkan', caseNumber: '2026/076', status: 'tamamlandi', folder: 'icra-dosyalari', lastActivity: '4 gün önce', pdfCount: 2, aiStatus: 'hazir', risk: 'orta', pinned: false },
+  ];
+
+  const STATUS_META = {
+    devam: { label: 'Devam Ediyor', className: 'bg-blue-50 text-blue-600' },
+    tamamlandi: { label: 'Tamamlandı', className: 'bg-emerald-50 text-emerald-600' },
+    beklemede: { label: 'Beklemede', className: 'bg-amber-50 text-amber-600' },
+  };
+
+  const AI_STATUS_META = {
+    hazir: { label: 'Hazır', className: 'bg-emerald-50 text-emerald-600', icon: 'check-circle-2', pulse: false },
+    bekliyor: { label: 'Analiz Bekliyor', className: 'bg-slate-100 text-slate-500', icon: 'clock', pulse: false },
+    isleniyor: { label: 'İşleniyor', className: 'bg-blue-50 text-blue-600', icon: 'loader-circle', pulse: true },
+  };
+
+  const RISK_META = {
+    dusuk: { label: 'Düşük Risk', className: 'text-emerald-600 bg-emerald-50', icon: 'shield-check' },
+    orta: { label: 'Orta Risk', className: 'text-amber-600 bg-amber-50', icon: 'shield-alert' },
+    kritik: { label: 'Kritik Risk', className: 'text-red-600 bg-red-50', icon: 'shield-x' },
+  };
+
+  const state = {
+    search: '',
+    status: 'all',
+    folder: 'all',
+    sort: 'recent',
+    view: 'grid',
+    openMenuId: null,
+  };
+
+  /* ---------------- Sidebar (mobile drawer) ---------------- */
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+  function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  }
+  function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  }
+  document.getElementById('menuToggle').addEventListener('click', openSidebar);
+  sidebarBackdrop.addEventListener('click', closeSidebar);
+
+  /* ---------------- Profile dropdown ---------------- */
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu.classList.toggle('hidden');
+  });
+  document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+  document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  /* ---------------- Command palette (⌘K) ---------------- */
+  const PALETTE_NAV = [
+    { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
+    { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
+    { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+  ];
+  const PALETTE_CASES = [
+    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
+    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
+  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+
+  const palette = document.getElementById('commandPalette');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+
+  function openPalette() {
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    paletteInput.value = '';
+    renderPaletteResults('');
+    setTimeout(() => paletteInput.focus(), 10);
+  }
+  function closePalette() {
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  }
+  function paletteSection(title, items) {
+    if (items.length === 0) return '';
+    return `<p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">${title}</p>` +
+      items.map((i) => `
+        <button data-href="${i.href}" class="palette-item w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition text-left">
+          <i data-lucide="${i.icon}" class="w-4 h-4 text-slate-400"></i> ${i.label}
+        </button>
+      `).join('');
+  }
+  function renderPaletteResults(query) {
+    const q = query.trim().toLowerCase();
+    const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
+    const caseMatches = PALETTE_CASES.filter((i) => i.label.toLowerCase().includes(q));
+    const html = paletteSection('Sayfalar', navMatches) + paletteSection('Davalar', caseMatches);
+    paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
+    lucide.createIcons();
+    paletteResults.querySelectorAll('.palette-item').forEach((btn) => {
+      btn.addEventListener('click', () => { window.location.href = btn.dataset.href; });
+    });
+  }
+  paletteInput.addEventListener('input', () => renderPaletteResults(paletteInput.value));
+  document.getElementById('openPaletteBtn').addEventListener('click', openPalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+
+  /* ---------------- Toasts ---------------- */
+  function showToast(message, variant = 'success') {
+    const container = document.getElementById('toastContainer');
+    const icon = variant === 'success' ? 'check-circle-2' : variant === 'error' ? 'alert-circle' : 'info';
+    const accent = variant === 'success' ? 'text-emerald-600' : variant === 'error' ? 'text-red-600' : 'text-navy';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-in flex items-center gap-2.5 bg-white border border-slate-200 shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] rounded-xl px-4 py-3 text-sm text-navy min-w-[240px]';
+    toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${accent} shrink-0"></i><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    lucide.createIcons();
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .2s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+    }, 3200);
+  }
+
+  /* ---------------- Quick access: pinned + recently viewed ----------------
+     Recently-viewed is tracked in localStorage so it survives navigation to
+     index.html and back (see trackRecentCase() calls on "Dosyayı Aç" links
+     and on index.html's own load). */
+  const RECENT_CASES_KEY = 'lexassist_recent_cases';
+
+  function trackRecentCase(title) {
+    let recent = JSON.parse(localStorage.getItem(RECENT_CASES_KEY) || '[]');
+    recent = recent.filter((t) => t !== title);
+    recent.unshift(title);
+    localStorage.setItem(RECENT_CASES_KEY, JSON.stringify(recent.slice(0, 5)));
+  }
+
+  function quickAccessChip(title, icon, iconClass) {
+    const safeTitle = escapeHtml(title);
+    return `
+      <a href="index.html" data-open-case-title="${safeTitle}" class="fade-in shrink-0 flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl pl-3 pr-4 py-2.5 card-lift transition max-w-[220px]">
+        <span class="w-7 h-7 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-3.5 h-3.5 ${iconClass}"></i></span>
+        <span class="text-xs font-medium text-navy truncate">${safeTitle}</span>
+      </a>
+    `;
+  }
+
+  function renderQuickAccess() {
+    const pinned = CASES.filter((c) => c.pinned);
+    const recentTitles = JSON.parse(localStorage.getItem(RECENT_CASES_KEY) || '[]').filter(
+      (title) => !pinned.some((c) => c.title === title)
+    );
+
+    document.getElementById('quickAccessSection').classList.toggle('hidden', pinned.length === 0 && recentTitles.length === 0);
+
+    document.getElementById('pinnedRail').classList.toggle('hidden', pinned.length === 0);
+    document.getElementById('pinnedList').innerHTML = pinned.map((c) => quickAccessChip(c.title, 'pin', 'text-gold')).join('');
+
+    document.getElementById('recentRail').classList.toggle('hidden', recentTitles.length === 0);
+    document.getElementById('recentList').innerHTML = recentTitles.map((title) => quickAccessChip(title, 'clock', 'text-slate-400')).join('');
+
+    lucide.createIcons();
+    document.querySelectorAll('[data-open-case-title]').forEach((link) =>
+      link.addEventListener('click', () => trackRecentCase(link.dataset.openCaseTitle)));
+  }
+
+  /* ---------------- Folders ---------------- */
+  function renderFolders() {
+    const grid = document.getElementById('foldersGrid');
+    grid.innerHTML = FOLDERS.map((folder) => {
+      const count = CASES.filter((c) => c.folder === folder.id).length;
+      const active = state.folder === folder.id;
+      return `
+        <button data-folder="${folder.id}"
+          class="folder-card text-left bg-white border ${active ? 'border-navy ring-1 ring-navy/10' : 'border-slate-200'} rounded-xl p-4 card-lift transition">
+          <div class="w-10 h-10 rounded-lg ${active ? 'bg-navy text-white' : 'bg-navy/5 text-navy'} flex items-center justify-center transition">
+            <i data-lucide="${folder.icon}" class="w-4 h-4"></i>
+          </div>
+          <p class="text-sm font-semibold text-navy mt-3 truncate">${folder.name}</p>
+          <p class="text-xs text-slate-400 mt-0.5">${count} dava · ${folder.updatedAt}</p>
+        </button>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.folder-card').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.folder = state.folder === btn.dataset.folder ? 'all' : btn.dataset.folder;
+        document.getElementById('folderFilter').value = state.folder;
+        renderFolders();
+        renderCases();
+      });
+    });
+
+    lucide.createIcons();
+  }
+
+  /* ---------------- Cases ---------------- */
+  function getFilteredSortedCases() {
+    let list = CASES.filter((c) => {
+      const matchesSearch = (c.title + c.client).toLowerCase().includes(state.search.toLowerCase());
+      const matchesStatus = state.status === 'all' || c.status === state.status;
+      const matchesFolder = state.folder === 'all' || c.folder === state.folder;
+      return matchesSearch && matchesStatus && matchesFolder;
+    });
+
+    if (state.sort === 'name') list = [...list].sort((a, b) => a.title.localeCompare(b.title, 'tr'));
+    if (state.sort === 'status') list = [...list].sort((a, b) => a.status.localeCompare(b.status));
+    return list;
+  }
+
+  function caseCardHTML(c, view) {
+    const status = STATUS_META[c.status];
+    const ai = AI_STATUS_META[c.aiStatus];
+    const risk = RISK_META[c.risk];
+    const folderName = FOLDERS.find((f) => f.id === c.folder)?.name || '';
+    const safeTitle = escapeHtml(c.title);
+    const safeClient = escapeHtml(c.client);
+
+    const pinBtn = `
+      <button data-action="pin" data-id="${c.id}" title="${c.pinned ? 'Sabitlemeyi kaldır' : 'Sabitle'}" aria-label="${c.pinned ? 'Sabitlemeyi kaldır' : 'Sabitle'}"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition ${c.pinned ? 'text-gold hover:bg-gold-light/20' : 'text-slate-400 hover:bg-slate-100 hover:text-navy'}">
+        <i data-lucide="pin" class="w-4 h-4 ${c.pinned ? 'fill-current' : ''}"></i>
+      </button>
+    `;
+
+    const menu = `
+      <div class="relative shrink-0">
+        <button data-menu-toggle="${c.id}" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-navy transition" aria-label="Hızlı işlemler">
+          <i data-lucide="more-vertical" class="w-4 h-4"></i>
+        </button>
+        <div data-menu="${c.id}" class="hidden pop-in absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-20">
+          <a href="index.html" data-open-case="${c.id}" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="folder-open" class="w-4 h-4"></i> Dosyayı Aç</a>
+          <a href="upload.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="upload" class="w-4 h-4"></i> PDF Yükle</a>
+          <button data-action="rename" data-id="${c.id}" class="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="pencil" class="w-4 h-4"></i> Yeniden Adlandır</button>
+          <button data-action="move" data-id="${c.id}" class="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="folder-input" class="w-4 h-4"></i> Taşı</button>
+          <div class="h-px bg-slate-100 my-1.5"></div>
+          <button data-action="delete" data-id="${c.id}" class="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="trash-2" class="w-4 h-4"></i> Sil</button>
+        </div>
+      </div>
+    `;
+
+    if (view === 'list') {
+      return `
+        <div class="fade-in bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4 card-lift">
+          <div class="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center shrink-0">
+            <i data-lucide="briefcase" class="w-4 h-4 text-navy"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <p class="text-sm font-semibold text-navy truncate">${safeTitle}</p>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${status.className} shrink-0">${status.label}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5 truncate">${safeClient} · ${c.caseNumber} · ${folderName}</p>
+          </div>
+          <div class="hidden md:flex items-center gap-2 shrink-0">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${ai.className}">
+              <i data-lucide="${ai.icon}" class="w-3.5 h-3.5 ${ai.pulse ? 'ai-pulse' : ''}"></i> ${ai.label}
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${risk.className}">
+              <i data-lucide="${risk.icon}" class="w-3.5 h-3.5"></i> ${risk.label}
+            </span>
+          </div>
+          <span class="hidden lg:block text-xs text-slate-400 shrink-0 w-24">${c.lastActivity}</span>
+          ${pinBtn}
+          ${menu}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="fade-in bg-white border border-slate-200 rounded-xl p-5 card-lift">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center">
+            <i data-lucide="briefcase" class="w-4 h-4 text-navy"></i>
+          </div>
+          <div class="flex items-center gap-0.5">
+            ${pinBtn}
+            ${menu}
+          </div>
+        </div>
+
+        <h3 class="text-sm font-semibold text-navy mt-3 truncate">${safeTitle}</h3>
+        <p class="text-xs text-slate-400 mt-0.5">${safeClient} · ${c.caseNumber}</p>
+
+        <div class="flex flex-wrap items-center gap-1.5 mt-3">
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}">${status.label}</span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${ai.className}">
+            <i data-lucide="${ai.icon}" class="w-3.5 h-3.5 ${ai.pulse ? 'ai-pulse' : ''}"></i> ${ai.label}
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full ${risk.className}">
+            <i data-lucide="${risk.icon}" class="w-3.5 h-3.5"></i> ${risk.label}
+          </span>
+          <span class="text-xs text-slate-400 flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> ${c.pdfCount}</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2">${c.lastActivity}</p>
+      </div>
+    `;
+  }
+
+  function bindCardMenus(list) {
+    list.forEach((c) => {
+      const toggle = document.querySelector(`[data-menu-toggle="${c.id}"]`);
+      const menu = document.querySelector(`[data-menu="${c.id}"]`);
+      if (!toggle || !menu) return;
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = state.openMenuId === c.id;
+        closeAllCardMenus();
+        if (!isOpen) {
+          menu.classList.remove('hidden');
+          state.openMenuId = c.id;
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-action="rename"]').forEach((btn) =>
+      btn.addEventListener('click', () => handleRename(btn.dataset.id)));
+    document.querySelectorAll('[data-action="move"]').forEach((btn) =>
+      btn.addEventListener('click', () => handleMove(btn.dataset.id)));
+    document.querySelectorAll('[data-action="delete"]').forEach((btn) =>
+      btn.addEventListener('click', () => openDeleteModal(btn.dataset.id)));
+    document.querySelectorAll('[data-action="pin"]').forEach((btn) =>
+      btn.addEventListener('click', (e) => { e.stopPropagation(); togglePin(btn.dataset.id); }));
+    document.querySelectorAll('[data-open-case]').forEach((link) =>
+      link.addEventListener('click', () => {
+        const c = CASES.find((x) => x.id === link.dataset.openCase);
+        if (c) trackRecentCase(c.title);
+      }));
+  }
+
+  function togglePin(id) {
+    const c = CASES.find((x) => x.id === id);
+    c.pinned = !c.pinned;
+    closeAllCardMenus();
+    renderCases();
+    renderQuickAccess();
+    showToast(c.pinned ? 'Dava sabitlendi.' : 'Sabitleme kaldırıldı.', 'info');
+  }
+
+  function closeAllCardMenus() {
+    document.querySelectorAll('[data-menu]').forEach((m) => m.classList.add('hidden'));
+    state.openMenuId = null;
+  }
+  document.addEventListener('click', closeAllCardMenus);
+
+  function renderCases() {
+    state.search = document.getElementById('caseSearch').value.trim();
+    const list = getFilteredSortedCases();
+
+    const gridEl = document.getElementById('casesGrid');
+    const listEl = document.getElementById('casesList');
+    const noResults = document.getElementById('noResultsState');
+    const trueEmpty = document.getElementById('trueEmptyState');
+    const countLabel = document.getElementById('caseCountLabel');
+
+    const hasAnyFilter = state.search !== '' || state.status !== 'all' || state.folder !== 'all';
+
+    if (CASES.length === 0) {
+      gridEl.classList.add('hidden');
+      listEl.classList.add('hidden');
+      noResults.classList.add('hidden');
+      trueEmpty.classList.remove('hidden');
+      trueEmpty.classList.add('flex');
+      countLabel.textContent = '';
+      lucide.createIcons();
+      return;
+    }
+
+    trueEmpty.classList.add('hidden');
+    trueEmpty.classList.remove('flex');
+
+    if (list.length === 0) {
+      gridEl.classList.add('hidden');
+      listEl.classList.add('hidden');
+      noResults.classList.remove('hidden');
+      noResults.classList.add('flex');
+      countLabel.textContent = '';
+      lucide.createIcons();
+      return;
+    }
+
+    noResults.classList.add('hidden');
+    noResults.classList.remove('flex');
+    countLabel.textContent = `${list.length} dava${hasAnyFilter ? ' (filtrelenmiş)' : ''}`;
+
+    if (state.view === 'grid') {
+      gridEl.classList.remove('hidden');
+      listEl.classList.add('hidden');
+      gridEl.innerHTML = list.map((c) => caseCardHTML(c, 'grid')).join('');
+    } else {
+      listEl.classList.remove('hidden');
+      listEl.classList.add('flex');
+      gridEl.classList.add('hidden');
+      listEl.innerHTML = list.map((c) => caseCardHTML(c, 'list')).join('');
+    }
+
+    lucide.createIcons();
+    bindCardMenus(list);
+  }
+
+  /* ---------------- Quick actions ---------------- */
+  function handleRename(id) {
+    closeAllCardMenus();
+    const current = CASES.find((c) => c.id === id);
+    const next = prompt('Yeni dava adı:', current.title);
+    if (next && next.trim()) {
+      current.title = next.trim();
+      renderCases();
+      showToast('Dava adı güncellendi.');
+    }
+  }
+
+  function handleMove(id) {
+    closeAllCardMenus();
+    showToast('Taşıma özelliği yakında eklenecek.', 'info');
+  }
+
+  let pendingDeleteId = null;
+  function openDeleteModal(id) {
+    closeAllCardMenus();
+    pendingDeleteId = id;
+    const c = CASES.find((x) => x.id === id);
+    document.getElementById('deleteModalText').textContent =
+      `"${c.title}" davası ve ilişkili tüm dosyalar kalıcı olarak silinecektir. Bu işlem geri alınamaz.`;
+    openModal(document.getElementById('deleteModal'));
+  }
+  function closeDeleteModal() {
+    pendingDeleteId = null;
+    closeModal(document.getElementById('deleteModal'));
+  }
+  document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
+  document.getElementById('deleteModal').addEventListener('click', (e) => { if (e.target.id === 'deleteModal') closeDeleteModal(); });
+  document.getElementById('confirmDelete').addEventListener('click', () => {
+    CASES = CASES.filter((c) => c.id !== pendingDeleteId);
+    closeDeleteModal();
+    renderFolders();
+    renderCases();
+    renderQuickAccess();
+    showToast('Dava silindi.');
+  });
+
+  /* ---------------- New case modal ---------------- */
+  const newCaseModal = document.getElementById('newCaseModal');
+  document.getElementById('newCaseBtn').addEventListener('click', () => openModal(newCaseModal));
+  document.getElementById('cancelNewCase').addEventListener('click', () => closeModal(newCaseModal));
+  newCaseModal.addEventListener('click', (e) => { if (e.target === newCaseModal) closeModal(newCaseModal); });
+  document.getElementById('newCaseForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    CASES.unshift({
+      id: String(Date.now()),
+      title: data.title,
+      client: data.client || '—',
+      caseNumber: `2026/${Math.floor(100 + Math.random() * 800)}`,
+      status: 'devam',
+      folder: data.folder,
+      lastActivity: 'az önce',
+      pdfCount: 0,
+      aiStatus: 'bekliyor',
+      risk: 'dusuk',
+    });
+    closeModal(newCaseModal);
+    e.target.reset();
+    renderFolders();
+    renderCases();
+    showToast('Yeni dava oluşturuldu.');
+  });
+
+  document.getElementById('newFolderBtn').addEventListener('click', () => {
+    showToast('Yeni klasör özelliği yakında eklenecek.', 'info');
+  });
+
+  /* ---------------- Filters wiring ---------------- */
+  document.getElementById('caseSearch').addEventListener('input', renderCases);
+  document.getElementById('statusFilter').addEventListener('change', (e) => { state.status = e.target.value; renderCases(); });
+  document.getElementById('folderFilter').addEventListener('change', (e) => { state.folder = e.target.value; renderFolders(); renderCases(); });
+  document.getElementById('sortFilter').addEventListener('change', (e) => { state.sort = e.target.value; renderCases(); });
+
+  document.getElementById('clearFolderFilter').addEventListener('click', () => {
+    state.folder = 'all';
+    document.getElementById('folderFilter').value = 'all';
+    renderFolders();
+    renderCases();
+  });
+
+  document.getElementById('clearAllFilters').addEventListener('click', () => {
+    state.search = '';
+    state.status = 'all';
+    state.folder = 'all';
+    document.getElementById('caseSearch').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('folderFilter').value = 'all';
+    renderFolders();
+    renderCases();
+  });
+
+  function setView(view) {
+    state.view = view;
+    const gridBtn = document.getElementById('gridViewBtn');
+    const listBtn = document.getElementById('listViewBtn');
+    gridBtn.classList.toggle('bg-white', view === 'grid');
+    gridBtn.classList.toggle('shadow', view === 'grid');
+    gridBtn.classList.toggle('text-navy', view === 'grid');
+    gridBtn.classList.toggle('text-slate-400', view !== 'grid');
+    listBtn.classList.toggle('bg-white', view === 'list');
+    listBtn.classList.toggle('shadow', view === 'list');
+    listBtn.classList.toggle('text-navy', view === 'list');
+    listBtn.classList.toggle('text-slate-400', view !== 'list');
+    renderCases();
+  }
+  document.getElementById('gridViewBtn').addEventListener('click', () => setView('grid'));
+  document.getElementById('listViewBtn').addEventListener('click', () => setView('list'));
+
+  /* ---------------- Init ---------------- */
+  renderFolders();
+  renderCases();
+  renderQuickAccess();
+  lucide.createIcons();
+</script>
+</body>
+</html>
