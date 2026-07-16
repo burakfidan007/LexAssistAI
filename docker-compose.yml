@@ -1,0 +1,35 @@
+services:
+  frontend:
+    image: nginx:alpine
+    container_name: lexassist-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: lexassist-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  # backend hazır olduğunda etkinleştirilecek (FastAPI + JWT + MongoDB)
+  # backend:
+  #   build: ./backend
+  #   container_name: lexassist-backend
+  #   ports:
+  #     - "8000:8000"
+  #   env_file: .env
+  #   depends_on:
+  #     - mongo
+  #   restart: unless-stopped
+
+volumes:
+  mongo_data:

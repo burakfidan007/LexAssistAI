@@ -1,0 +1,23 @@
+# Environment
+.env
+.env.local
+
+# Python (backend)
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node (if tooling is added later)
+node_modules/
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
