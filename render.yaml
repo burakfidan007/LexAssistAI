@@ -1,0 +1,52 @@
+# Render Blueprint — deploys the FastAPI backend as a Docker web service.
+# Render does NOT host MongoDB: point MONGO_URI at MongoDB Atlas.
+# In the Render dashboard, "New +" → "Blueprint" → pick this repo.
+#
+# Secrets (sync: false) are entered in the dashboard, never committed.
+
+services:
+  - type: web
+    name: lexassist-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    plan: free             # with STORAGE_BACKEND=firebase, files live in Firebase, so no disk is needed
+    autoDeploy: true
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: SMTP_PORT
+        value: "587"
+      - key: EMAIL_MODE
+        value: smtp
+      # Files go to Firebase Storage (Render's own disk is ephemeral).
+      - key: STORAGE_BACKEND
+        value: firebase
+
+      # ---- set these in the Render dashboard ----
+      - key: JWT_SECRET            # python3 -c "import secrets;print(secrets.token_urlsafe(48))"
+        sync: false
+      - key: MONGO_URI            # mongodb+srv://user:pass@cluster.mongodb.net/lexassist?retryWrites=true&w=majority
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FRONTEND_BASE_URL    # your Vercel URL, e.g. https://lexassist.vercel.app
+        sync: false
+      - key: CORS_ORIGINS         # JSON array with your Vercel URL, e.g. ["https://lexassist.vercel.app"]
+        sync: false
+      - key: SMTP_HOST            # smtp.gmail.com
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD        # Gmail App Password
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: FIREBASE_BUCKET             # your-project-id.appspot.com (Firebase console → Storage)
+        sync: false
+      - key: FIREBASE_CREDENTIALS_JSON   # paste the WHOLE service-account JSON as one value
+        sync: false

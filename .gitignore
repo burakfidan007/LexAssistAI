@@ -7,6 +7,8 @@ __pycache__/
 *.pyc
 venv/
 .venv/
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
 
 # Node (if tooling is added later)
 node_modules/
