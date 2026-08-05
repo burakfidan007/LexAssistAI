@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ayarlar · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Hesabınızı, güvenlik tercihlerinizi ve uygulama ayarlarınızı yönetin" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root { --navy: #0f172a; --navy-light: #1e3a8a; --gold: #d4af37; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .gold-focus:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.28); }
+
+  .card-lift { transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }
+  .card-lift:hover { box-shadow: 0 12px 24px -8px rgba(15,23,42,0.12); transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pop-in { animation: popIn .16s ease both; transform-origin: top right; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-in { animation: modalIn .22s ease both; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .toast-in { animation: toastIn .2s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sidebar-drawer { transition: transform .25s ease; }
+
+  /* Switch */
+  .switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .switch .track { position: absolute; inset: 0; background: #e2e8f0; border-radius: 999px; transition: background .2s ease; }
+  .switch .thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 999px; box-shadow: 0 1px 2px rgba(15,23,42,.2); transition: transform .2s ease; }
+  .switch input:checked + .track { background: var(--navy); }
+  .switch input:checked + .track .thumb { transform: translateX(18px); }
+  .switch input:focus-visible + .track { box-shadow: 0 0 0 3px rgba(212,175,55,0.35); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .fade-in, .pop-in, .modal-in, .toast-in, .sidebar-drawer, .switch .track, .switch .thumb {
+      animation: none !important; transition: none !important;
+    }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans">
+
+<div class="flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <aside id="sidebar" class="sidebar-drawer fixed lg:static inset-y-0 left-0 z-40 w-64 bg-navy text-white flex flex-col shrink-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center gap-2.5 px-6 py-6 border-b border-white/10 shrink-0">
+      <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center font-bold text-navy">L</div>
+      <span class="text-lg font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+    </div>
+
+    <nav class="px-3 py-6 space-y-1 shrink-0">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+      </a>
+      <a href="my-cases.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="briefcase" class="w-4 h-4"></i> Davalarım
+      </a>
+      <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
+      </a>
+      <a href="gecmis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
+      </a>
+      <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
+        <i data-lucide="settings" class="w-4 h-4 text-gold"></i> Ayarlar
+      </a>
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <div class="p-4 border-t border-white/10 space-y-3 shrink-0">
+      <button id="sidebarUpgradeBtn" class="w-full flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
+      </button>
+      <div class="flex items-center gap-3 px-1">
+        <div id="sidebarAvatar" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">—</div>
+        <div class="flex-1 min-w-0">
+          <p id="sidebarUserName" class="text-sm font-medium truncate">—</p>
+          <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="flex-1 flex flex-col min-w-0 lg:overflow-hidden">
+
+    <!-- Topbar -->
+    <header class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6">
+      <button id="menuToggle" class="lg:hidden text-slate-500 hover:text-navy transition" aria-label="Menüyü aç">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <button id="openPaletteBtn" class="flex-1 max-w-md flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left">
+        <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+        <span class="flex-1 truncate">Dava ara veya sayfaya git...</span>
+        <kbd class="hidden sm:inline text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">⌘K</kbd>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <div class="relative shrink-0">
+        <button id="notifBtn" class="relative text-slate-500 hover:text-navy transition" aria-label="Bildirimler">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span id="notifDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+        </button>
+        <div id="notifMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-2 z-50">
+          <div class="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
+            <span class="text-sm font-bold text-navy">Bildirimler</span>
+            <button id="notifMarkAllBtn" class="text-xs font-semibold text-navy hover:text-gold transition">Tümünü okundu işaretle</button>
+          </div>
+          <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+          <div id="notifEmpty" class="hidden text-center py-8 text-sm text-slate-400">Bildirim yok.</div>
+        </div>
+      </div>
+
+      <div class="relative shrink-0">
+        <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
+          <div id="profileAvatar" class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">—</div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
+        </button>
+        <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
+          <a href="profile.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="settings.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <div class="h-px bg-slate-100 my-1.5"></div>
+          <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Page header -->
+        <div class="mb-8">
+          <h1 class="text-2xl sm:text-[28px] font-bold text-navy tracking-tight">Ayarlar</h1>
+          <p class="text-sm text-slate-500 mt-1">Hesabınızı, güvenlik tercihlerinizi ve uygulama ayarlarınızı yönetin.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+
+          <!-- Settings nav -->
+          <nav id="settingsNav" class="lg:w-56 shrink-0 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
+            <button data-target="hesap" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-navy bg-white border border-slate-200 lg:border-0 lg:bg-transparent transition whitespace-nowrap">
+              <i data-lucide="user" class="w-4 h-4"></i> Hesap
+            </button>
+            <button data-target="guvenlik" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="shield" class="w-4 h-4"></i> Güvenlik
+            </button>
+            <button data-target="ai" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="bot" class="w-4 h-4"></i> Yapay Zeka
+            </button>
+            <button data-target="pdf" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="file-text" class="w-4 h-4"></i> PDF Ayarları
+            </button>
+            <button data-target="bildirimler" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="bell" class="w-4 h-4"></i> Bildirimler
+            </button>
+            <button data-target="gorunum" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="palette" class="w-4 h-4"></i> Görünüm
+            </button>
+            <button data-target="uyelik" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="crown" class="w-4 h-4"></i> Üyelik
+            </button>
+            <button data-target="hukuki" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition whitespace-nowrap">
+              <i data-lucide="scale" class="w-4 h-4"></i> Hukuki Bilgiler
+            </button>
+            <button data-target="tehlikeli" class="settings-nav-btn shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition whitespace-nowrap">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i> Tehlikeli Bölge
+            </button>
+          </nav>
+
+          <!-- Settings content -->
+          <div class="flex-1 min-w-0 space-y-6">
+
+            <!-- ===== Hesap ===== -->
+            <section data-section="hesap" class="space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6 fade-in">
+                <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-5">Profil</h2>
+
+                <div class="flex items-center gap-4 mb-6">
+                  <div id="accountAvatar" class="w-16 h-16 rounded-full bg-navy text-white flex items-center justify-center text-xl font-semibold shrink-0">—</div>
+                  <div>
+                    <button id="changePhotoBtn" type="button" class="text-sm font-semibold text-navy border border-slate-300 hover:border-navy px-3.5 py-2 rounded-lg transition">Fotoğrafı Değiştir</button>
+                    <p class="text-xs text-slate-400 mt-1.5">JPG veya PNG, en fazla 2MB.</p>
+                  </div>
+                </div>
+
+                <form id="accountForm" novalidate class="grid sm:grid-cols-2 gap-5">
+                  <div class="sm:col-span-2">
+                    <label for="accFullName" class="block text-sm font-medium text-slate-700 mb-1.5">Ad Soyad</label>
+                    <input id="accFullName" name="fullName" type="text" required class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+                    <p class="field-error hidden mt-1.5 items-center gap-1.5 text-xs text-red-600"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Ad soyad giriniz.</p>
+                  </div>
+                  <div>
+                    <label for="accEmail" class="block text-sm font-medium text-slate-700 mb-1.5">E-posta</label>
+                    <input id="accEmail" type="email" disabled class="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-400 cursor-not-allowed" />
+                    <p class="text-xs text-slate-400 mt-1.5">E-posta adresi değiştirilemez.</p>
+                  </div>
+                  <div>
+                    <label for="accPhone" class="block text-sm font-medium text-slate-700 mb-1.5">Telefon</label>
+                    <input id="accPhone" name="phone" type="tel" placeholder="0532 000 00 00" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+                  </div>
+                  <div>
+                    <label for="accBaro" class="block text-sm font-medium text-slate-700 mb-1.5">Baro Sicil Numarası</label>
+                    <input id="accBaro" name="baroNumber" type="text" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+                  </div>
+                  <div>
+                    <label for="accLawFirm" class="block text-sm font-medium text-slate-700 mb-1.5">Hukuk Bürosu</label>
+                    <input id="accLawFirm" name="lawFirm" type="text" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+                  </div>
+                  <div>
+                    <label for="accCity" class="block text-sm font-medium text-slate-700 mb-1.5">Şehir</label>
+                    <input id="accCity" name="city" type="text" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" />
+                  </div>
+
+                  <div class="sm:col-span-2 flex gap-3 pt-2">
+                    <button type="submit" class="bg-navy hover:bg-navy-light text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition">Kaydet</button>
+                    <button type="button" id="accountCancelBtn" class="border border-slate-300 hover:border-navy text-navy font-semibold text-sm px-5 py-2.5 rounded-lg transition">İptal</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+            <!-- ===== Güvenlik ===== -->
+            <section data-section="guvenlik" class="hidden space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-5">Şifre Değiştir</h2>
+                <form id="passwordForm" novalidate class="space-y-4 max-w-md">
+                  <div>
+                    <label for="curPassword" class="block text-sm font-medium text-slate-700 mb-1.5">Mevcut Şifre</label>
+                    <div class="relative">
+                      <input id="curPassword" type="password" required class="w-full rounded-lg border border-slate-300 pl-4 pr-11 py-2.5 text-sm gold-focus transition" />
+                      <button type="button" data-toggle-password="curPassword" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy transition"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    </div>
+                    <p class="field-error hidden mt-1.5 items-center gap-1.5 text-xs text-red-600"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Mevcut şifrenizi giriniz.</p>
+                  </div>
+                  <div>
+                    <label for="newPassword" class="block text-sm font-medium text-slate-700 mb-1.5">Yeni Şifre</label>
+                    <div class="relative">
+                      <input id="newPassword" type="password" required class="w-full rounded-lg border border-slate-300 pl-4 pr-11 py-2.5 text-sm gold-focus transition" />
+                      <button type="button" data-toggle-password="newPassword" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy transition"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex gap-1 mt-2">
+                      <div class="strength-bar h-1 flex-1 rounded-full bg-slate-100"></div>
+                      <div class="strength-bar h-1 flex-1 rounded-full bg-slate-100"></div>
+                      <div class="strength-bar h-1 flex-1 rounded-full bg-slate-100"></div>
+                      <div class="strength-bar h-1 flex-1 rounded-full bg-slate-100"></div>
+                    </div>
+                    <p id="strengthLabel" class="text-xs text-slate-400 mt-1">En az 8 karakter kullanın.</p>
+                  </div>
+                  <div>
+                    <label for="repeatPassword" class="block text-sm font-medium text-slate-700 mb-1.5">Yeni Şifre (Tekrar)</label>
+                    <div class="relative">
+                      <input id="repeatPassword" type="password" required class="w-full rounded-lg border border-slate-300 pl-4 pr-11 py-2.5 text-sm gold-focus transition" />
+                      <button type="button" data-toggle-password="repeatPassword" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy transition"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    </div>
+                    <p class="field-error hidden mt-1.5 items-center gap-1.5 text-xs text-red-600"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Şifreler eşleşmiyor.</p>
+                  </div>
+                  <button type="submit" class="bg-navy hover:bg-navy-light text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition">Şifreyi Güncelle</button>
+                </form>
+              </div>
+
+              <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <div class="flex items-center justify-between mb-5">
+                  <h2 class="text-sm font-bold text-navy uppercase tracking-wide">Aktif Oturumlar</h2>
+                  <button id="terminateAllBtn" class="text-xs font-semibold text-red-600 hover:text-red-700 transition">Tüm Cihazlardan Çıkış Yap</button>
+                </div>
+                <div id="sessionsList" class="space-y-3"></div>
+              </div>
+
+              <div class="bg-white border border-slate-200 rounded-xl p-6 flex items-start gap-4">
+                <div class="w-11 h-11 rounded-full bg-navy/5 flex items-center justify-center shrink-0">
+                  <i data-lucide="smartphone-nfc" class="w-5 h-5 text-navy"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-semibold text-navy">İki Adımlı Doğrulama</h3>
+                    <span class="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold-light/40 px-2 py-0.5 rounded-full">Yakında</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-1 max-w-md">Hesabınıza ekstra bir güvenlik katmanı ekleyin — telefonunuza gönderilen kodla giriş doğrulaması.</p>
+                </div>
+                <button disabled class="shrink-0 text-sm font-semibold text-slate-400 bg-slate-100 px-4 py-2 rounded-lg cursor-not-allowed">Etkinleştir</button>
+              </div>
+
+              <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-1">Güvenlik Durumu</h2>
+                <div class="flex items-center gap-3 mt-4 mb-5">
+                  <div class="text-3xl font-bold text-emerald-600">98<span class="text-base text-slate-400">/100</span></div>
+                  <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 rounded-full" style="width:98%"></div>
+                  </div>
+                </div>
+                <ul class="grid sm:grid-cols-2 gap-3 text-sm">
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i> JWT ile Kimlik Doğrulama</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i> Docker İzolasyonu</li>
+                  <li id="httpsStatusItem" class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i> HTTPS Bağlantısı</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i> Şifrelenmiş Veri Depolama</li>
+                  <li class="flex items-center gap-2 text-slate-600 sm:col-span-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400 shrink-0"></i> Son Giriş: <span id="lastLoginText">az önce</span></li>
+                </ul>
+              </div>
+            </section>
+
+            <!-- ===== Yapay Zeka ===== -->
+            <section data-section="ai" class="hidden space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-6">
+                <div>
+                  <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-1">Yapay Zeka Tercihleri</h2>
+                  <p class="text-xs text-slate-400">Bu ayarlar arayüz önizlemesidir — analiz uçları şu anda yalnızca Google Gemini kullanır.</p>
+                </div>
+
+                <div class="max-w-sm">
+                  <label for="aiModel" class="block text-sm font-medium text-slate-700 mb-1.5">Varsayılan AI Modeli</label>
+                  <select id="aiModel" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition bg-white">
+                    <option value="gemini">Gemini</option>
+                    <option value="claude">Claude</option>
+                    <option value="gpt">GPT-4</option>
+                    <option value="deepseek">DeepSeek</option>
+                  </select>
+                </div>
+
+                <div>
+                  <p class="text-sm font-medium text-slate-700 mb-2">Yanıt Uzunluğu</p>
+                  <div class="inline-flex gap-1 bg-slate-100 rounded-lg p-1" id="responseLengthGroup">
+                    <button type="button" data-value="kisa" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium text-slate-500 transition">Kısa</button>
+                    <button type="button" data-value="normal" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium text-slate-500 transition">Normal</button>
+                    <button type="button" data-value="detayli" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium text-slate-500 transition">Detaylı</button>
+                  </div>
+                </div>
+
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Otomatik Özet Oluştur</span>
+                    <span class="switch"><input type="checkbox" data-pref="autoSummary" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Otomatik Risk Analizi</span>
+                    <span class="switch"><input type="checkbox" data-pref="autoRisk" /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Otomatik Dilekçe Önerisi</span>
+                    <span class="switch"><input type="checkbox" data-pref="autoDraft" /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100">
+                  <p class="text-sm font-medium text-slate-700 mb-2">Tercih Edilen Dil</p>
+                  <div class="inline-flex gap-1 bg-slate-100 rounded-lg p-1">
+                    <button type="button" class="px-4 py-1.5 rounded-md text-sm font-semibold text-navy bg-white shadow">Türkçe</button>
+                    <button type="button" id="englishLangBtn" class="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400">English</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===== PDF Ayarları ===== -->
+            <section data-section="pdf" class="hidden space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-6">
+                <h2 class="text-sm font-bold text-navy uppercase tracking-wide">PDF Ayarları</h2>
+
+                <div class="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label for="pdfFolder" class="block text-sm font-medium text-slate-700 mb-1.5">Varsayılan Yükleme Klasörü</label>
+                    <select id="pdfFolder" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition bg-white">
+                      <option value="">Klasörsüz</option>
+                      <option value="is-hukuku">İş Hukuku</option>
+                      <option value="ceza-hukuku">Ceza Hukuku</option>
+                      <option value="aile-hukuku">Aile Hukuku</option>
+                      <option value="ticaret-hukuku">Ticaret Hukuku</option>
+                      <option value="icra-dosyalari">İcra Dosyaları</option>
+                    </select>
+                  </div>
+                  <div>
+                    <p class="block text-sm font-medium text-slate-700 mb-1.5">Maksimum Dosya Boyutu</p>
+                    <p id="maxFileSizeText" class="text-sm text-slate-500 border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50">—</p>
+                  </div>
+                  <div>
+                    <p class="block text-sm font-medium text-slate-700 mb-1.5">Desteklenen Format</p>
+                    <p class="text-sm text-slate-500 border border-slate-200 rounded-lg px-4 py-2.5 bg-slate-50">PDF</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Yükleme Sonrası Otomatik Analiz</span>
+                    <span class="switch"><input type="checkbox" data-pref="autoAnalyzeOnUpload" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Otomatik OCR</span>
+                    <span class="switch"><input type="checkbox" data-pref="autoOcr" /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Orijinal Dosyayı Sakla</span>
+                    <span class="switch"><input type="checkbox" data-pref="keepOriginal" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100">
+                  <div class="flex items-center justify-between text-sm mb-1.5">
+                    <span class="font-medium text-slate-700">Depolama Kullanımı</span>
+                    <span id="storageUsageText" class="text-slate-400">—</span>
+                  </div>
+                  <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="storageUsageBar" class="h-full bg-gradient-to-r from-navy to-navy-light rounded-full" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===== Bildirimler ===== -->
+            <section data-section="bildirimler" class="hidden space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6">
+                <h2 class="text-sm font-bold text-navy uppercase tracking-wide mb-5">E-posta Bildirimleri</h2>
+                <div class="space-y-4">
+                  <label class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <div>
+                      <p class="text-sm font-medium text-navy">Tüm E-posta Bildirimleri</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Aşağıdaki tüm bildirim türlerini aç/kapat</p>
+                    </div>
+                    <span class="switch"><input type="checkbox" id="notifyMaster" data-pref="notifyMaster" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Analiz Tamamlandı</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifyAnalysis" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Yükleme Tamamlandı</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifyUpload" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Sistem Duyuruları</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifySystem" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Premium Kampanyaları</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifyPromo" /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Haftalık Özet</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifyWeekly" checked /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <label class="flex items-center justify-between">
+                    <span class="text-sm text-slate-700">Güvenlik Uyarıları</span>
+                    <span class="switch"><input type="checkbox" data-pref="notifySecurity" checked disabled /><span class="track"><span class="thumb"></span></span></span>
+                  </label>
+                  <p class="text-xs text-slate-400">Güvenlik uyarıları hesabınızın korunması için her zaman açık kalır.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===== Görünüm ===== -->
+            <section data-section="gorunum" class="hidden space-y-6">
+              <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-6">
+                <div>
+                  <p class="text-sm font-medium text-slate-700 mb-2">Tema</p>
+                  <div class="inline-flex gap-1 bg-slate-100 rounded-lg p-1" id="themeGroup">
+                    <button type="button" data-value="acik" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Açık</button>
+                    <button type="button" data-value="koyu" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Koyu</button>
+                    <button type="button" data-value="sistem" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Sistem</button>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-2">Koyu tema yakında eklenecek.</p>
+                </div>
+                <div class="pt-2 border-t border-slate-100">
+                  <p class="text-sm font-medium text-slate-700 mb-2">Kenar Çubuğu Genişliği</p>
+                  <div class="inline-flex gap-1 bg-slate-100 rounded-lg p-1" id="sidebarWidthGroup">
+                    <button type="button" data-value="kompakt" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Kompakt</button>
+                    <button type="button" data-value="rahat" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Rahat</button>
+                  </div>
+                </div>
+                <div class="pt-2 border-t border-slate-100">
+                  <p class="text-sm font-medium text-slate-700 mb-2">Arayüz Yoğunluğu</p>
+                  <div class="inline-flex gap-1 bg-slate-100 rounded-lg p-1" id="densityGroup">
+                    <button type="button" data-value="rahat" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Rahat</button>
+                    <button type="button" data-value="sikisik" class="segment-btn px-4 py-1.5 rounded-md text-sm font-medium transition">Sıkışık</button>
+                  </div>
+                </div>
+                <label class="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div>
+                    <p class="text-sm font-medium text-slate-700">Animasyonlar</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Geçiş ve hover animasyonlarını etkinleştir</p>
+                  </div>
+                  <span class="switch"><input type="checkbox" data-pref="animations" checked /><span class="track"><span class="thumb"></span></span></span>
+                </label>
+              </div>
+            </section>
+
+            <!-- ===== Üyelik ===== -->
+            <section data-section="uyelik" class="hidden space-y-6">
+              <div class="bg-navy rounded-xl p-6 sm:p-8 text-white relative overflow-hidden">
+                <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-gold/10"></div>
+                <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-white/10 px-3 py-1 rounded-full">
+                      <i data-lucide="circle" class="w-2 h-2 fill-current"></i> Mevcut Plan
+                    </span>
+                    <h2 id="planNameHeading" class="text-2xl font-bold mt-3">—</h2>
+                    <p id="planDescText" class="text-sm text-slate-300 mt-1">Sınırlı yükleme ve analiz hakkı ile devam ediyorsunuz.</p>
+                  </div>
+                  <button id="upgradePlanBtn" class="shrink-0 inline-flex items-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Geç
+                  </button>
+                </div>
+
+                <div class="relative z-10 grid sm:grid-cols-3 gap-4 mt-8">
+                  <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-xs text-slate-300">PDF Kullanımı</p>
+                    <p id="planPdfUsage" class="text-lg font-bold mt-1">—</p>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-xs text-slate-300">Depolama</p>
+                    <p id="planStorageText" class="text-lg font-bold mt-1">—</p>
+                  </div>
+                  <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-xs text-slate-300">AI Analizi</p>
+                    <p id="planAiCountText" class="text-lg font-bold mt-1">—</p>
+                  </div>
+                </div>
+                <p class="relative z-10 text-xs text-slate-400 mt-4">Yenileme tarihi: Ücretsiz planda yenileme uygulanmaz.</p>
+              </div>
+
+              <div class="bg-white border border-gold/40 rounded-xl p-6">
+                <h3 class="text-sm font-bold text-navy uppercase tracking-wide mb-4">Premium ile gelenler</h3>
+                <ul class="grid sm:grid-cols-2 gap-3 text-sm">
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Sınırsız PDF yükleme</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Gelişmiş risk & dilekçe araçları</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Öncelikli destek</li>
+                  <li class="flex items-center gap-2 text-slate-600"><i data-lucide="check" class="w-4 h-4 text-gold shrink-0"></i> Genişletilmiş depolama</li>
+                </ul>
+              </div>
+            </section>
+
+            <!-- ===== Hukuki Bilgiler ===== -->
+            <section data-section="hukuki" class="hidden space-y-3">
+              <a href="#" class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 card-lift">
+                <span class="text-sm font-medium text-navy">KVKK Aydınlatma Metni</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </a>
+              <a href="#" class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 card-lift">
+                <span class="text-sm font-medium text-navy">Gizlilik Politikası</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </a>
+              <a href="#" class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 card-lift">
+                <span class="text-sm font-medium text-navy">Kullanım Şartları</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </a>
+              <a href="#" class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 card-lift">
+                <span class="text-sm font-medium text-navy">Açık Kaynak Lisansları</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </a>
+              <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <span class="text-sm text-slate-500">Uygulama Sürümü</span>
+                <span class="text-sm font-mono text-slate-500">v1.0.0</span>
+              </div>
+            </section>
+
+            <!-- ===== Tehlikeli Bölge ===== -->
+            <section data-section="tehlikeli" class="hidden space-y-4">
+              <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                <h2 class="text-sm font-bold text-red-700 uppercase tracking-wide mb-1 flex items-center gap-2">
+                  <i data-lucide="alert-triangle" class="w-4 h-4"></i> Tehlikeli Bölge
+                </h2>
+                <p class="text-xs text-red-600/80 mb-5">Bu işlemler geri alınamaz. Devam etmeden önce emin olun.</p>
+
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between bg-white border border-red-200 rounded-lg p-4">
+                    <div>
+                      <p class="text-sm font-semibold text-navy">Tüm Yüklenen PDF'leri Sil</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Hesabınızdaki tüm dosyalar kalıcı olarak silinir.</p>
+                    </div>
+                    <button data-danger="uploads" class="danger-trigger shrink-0 text-sm font-semibold text-red-600 border border-red-300 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg transition">Sil</button>
+                  </div>
+                  <div class="flex items-center justify-between bg-white border border-red-200 rounded-lg p-4">
+                    <div>
+                      <p class="text-sm font-semibold text-navy">Tüm AI Konuşmalarını Sil</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Geçmiş sohbet ve analiz kayıtları silinir.</p>
+                    </div>
+                    <button data-danger="conversations" class="danger-trigger shrink-0 text-sm font-semibold text-red-600 border border-red-300 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg transition">Sil</button>
+                  </div>
+                  <div class="flex items-center justify-between bg-white border border-red-300 rounded-lg p-4">
+                    <div>
+                      <p class="text-sm font-semibold text-navy">Hesabı Sil</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Hesabınız ve tüm verileriniz kalıcı olarak silinir.</p>
+                    </div>
+                    <button data-danger="account" class="danger-trigger shrink-0 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition">Hesabı Sil</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======================= Command palette (⌘K) ======================= -->
+<div id="commandPalette" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-start justify-center z-[70] px-4 pt-24">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-lg overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      <input id="paletteInput" type="text" placeholder="Dava ara veya sayfaya git..." autocomplete="off" class="flex-1 text-sm focus:outline-none" />
+      <kbd class="text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">ESC</kbd>
+    </div>
+    <div id="paletteResults" class="max-h-80 overflow-y-auto py-2"></div>
+  </div>
+</div>
+
+<!-- ======================= Danger confirmation modal ======================= -->
+<div id="dangerModal" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-center justify-center z-50 px-4" role="dialog" aria-modal="true" aria-labelledby="dangerModalTitle">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-sm p-6">
+    <div class="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center mb-4">
+      <i data-lucide="trash-2" class="w-5 h-5 text-red-600"></i>
+    </div>
+    <h3 id="dangerModalTitle" class="text-base font-bold text-navy">Emin misiniz?</h3>
+    <p id="dangerModalText" class="text-sm text-slate-500 mt-1.5">Bu işlem geri alınamaz.</p>
+    <div id="dangerConfirmWrap" class="hidden mt-4">
+      <label for="dangerConfirmInput" class="block text-xs font-medium text-slate-600 mb-1.5">Onaylamak için <span class="font-mono font-bold">SİL</span> yazın</label>
+      <input id="dangerConfirmInput" type="text" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm gold-focus transition" autocomplete="off" />
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button id="cancelDanger" class="flex-1 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">İptal</button>
+      <button id="confirmDanger" class="flex-1 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed">Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= Toast container ======================= -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5"></div>
+
+<script type="module">
+  import { TOKEN_KEY, MAX_FILE_SIZE, API_BASE_URL } from './js/config/env.js';
+  import { request, clearSession } from './js/api/http.js';
+  import { escapeHtml } from './js/utils/sanitize.js';
+
+  /* =========================================================
+     Auth guard
+  ========================================================= */
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'login.html';
+  }
+
+  function logout() {
+    clearSession();
+    window.location.href = 'login.html';
+  }
+
+  /* =========================================================
+     Modal a11y — focus trap + Escape-to-close + focus restore.
+  ========================================================= */
+  let modalReturnFocusEl = null;
+
+  function openModal(modal) {
+    modalReturnFocusEl = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.addEventListener('keydown', handleModalKeydown);
+    const focusable = modal.querySelector('button, input, select, textarea, [href]');
+    setTimeout(() => focusable?.focus(), 10);
+  }
+  function closeModal(modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.removeEventListener('keydown', handleModalKeydown);
+    modalReturnFocusEl?.focus();
+  }
+  function handleModalKeydown(e) {
+    const modal = document.querySelector('[role="dialog"]:not(.hidden)');
+    if (!modal) return;
+    if (e.key === 'Escape') { closeModal(modal); return; }
+    if (e.key !== 'Tab') return;
+    const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  /* =========================================================
+     Sidebar drawer + profile dropdown — shared shell behavior
+  ========================================================= */
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  });
+  sidebarBackdrop.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  });
+
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+  document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  async function upgradeToPremium() {
+    try {
+      await request('/billing/upgrade', { method: 'POST' });
+      showToast('Premium plana yükseltildiniz!', 'success');
+      loadProfile();
+      loadNotifications();
+    } catch (err) {
+      showToast(err.message || 'Yükseltme başarısız oldu.', 'error');
+    }
+  }
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', upgradeToPremium);
+  document.getElementById('upgradePlanBtn').addEventListener('click', upgradeToPremium);
+
+  /* =========================================================
+     Notifications
+  ========================================================= */
+  const NOTIF_ICON = { upload_completed: 'upload-cloud', analysis_completed: 'sparkles', system: 'info', security: 'shield-alert' };
+  function formatNotifRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+  function renderNotifications(items) {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('notifEmpty');
+    document.getElementById('notifDot').classList.toggle('hidden', items.every((n) => n.read));
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = items.map((n) => `
+      <button data-id="${n.id}" class="notif-item w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition ${n.read ? '' : 'bg-navy/[0.03]'}">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="${NOTIF_ICON[n.type] || 'bell'}" class="w-4 h-4 text-navy"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${escapeHtml(n.title)}</p>
+          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(n.message)}</p>
+          <p class="text-[11px] text-slate-400 mt-1">${formatNotifRelative(n.createdAt)}</p>
+        </div>
+        ${n.read ? '' : '<span class="w-2 h-2 rounded-full bg-gold shrink-0 mt-1.5"></span>'}
+      </button>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.notif-item').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try { await request(`/notifications/${btn.dataset.id}/read`, { method: 'POST' }); } catch (err) { /* no-op */ }
+        loadNotifications();
+      });
+    });
+  }
+  async function loadNotifications() {
+    try {
+      renderNotifications(await request('/notifications?limit=15'));
+    } catch (err) {
+      renderNotifications([]);
+    }
+  }
+  const notifBtn = document.getElementById('notifBtn');
+  const notifMenu = document.getElementById('notifMenu');
+  notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => notifMenu.classList.add('hidden'));
+  document.getElementById('notifMarkAllBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try { await request('/notifications/read-all', { method: 'POST' }); } catch (err) { /* no-op */ }
+    loadNotifications();
+  });
+
+  /* ---------------- Command palette (⌘K) ---------------- */
+  const PALETTE_NAV = [
+    { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
+    { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
+    { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+    { label: 'Geçmiş', icon: 'history', href: 'gecmis.html' },
+    { label: 'Ayarlar', icon: 'settings', href: 'settings.html' },
+  ];
+  let PALETTE_CASES = [];
+  async function loadPaletteCases() {
+    try {
+      const cases = await request('/cases');
+      PALETTE_CASES = cases.map((c) => ({ label: c.title, icon: 'briefcase', href: `index.html?caseId=${c.id}` }));
+    } catch (err) {
+      PALETTE_CASES = [];
+    }
+  }
+
+  const palette = document.getElementById('commandPalette');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+
+  function openPalette() {
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    paletteInput.value = '';
+    renderPaletteResults('');
+    setTimeout(() => paletteInput.focus(), 10);
+  }
+  function closePalette() {
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  }
+  function paletteSection(title, items) {
+    if (items.length === 0) return '';
+    return `<p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">${title}</p>` +
+      items.map((i) => `
+        <button data-href="${i.href}" class="palette-item w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition text-left">
+          <i data-lucide="${i.icon}" class="w-4 h-4 text-slate-400"></i> ${i.label}
+        </button>
+      `).join('');
+  }
+  function renderPaletteResults(query) {
+    const q = query.trim().toLowerCase();
+    const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
+    const caseMatches = PALETTE_CASES.filter((i) => i.label.toLowerCase().includes(q));
+    const html = paletteSection('Sayfalar', navMatches) + paletteSection('Davalar', caseMatches);
+    paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
+    lucide.createIcons();
+    paletteResults.querySelectorAll('.palette-item').forEach((btn) => {
+      btn.addEventListener('click', () => { window.location.href = btn.dataset.href; });
+    });
+  }
+  paletteInput.addEventListener('input', () => renderPaletteResults(paletteInput.value));
+  document.getElementById('openPaletteBtn').addEventListener('click', openPalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+
+  /* =========================================================
+     Toasts
+  ========================================================= */
+  function showToast(message, variant = 'success') {
+    const container = document.getElementById('toastContainer');
+    const icon = variant === 'success' ? 'check-circle-2' : variant === 'error' ? 'alert-circle' : 'info';
+    const accent = variant === 'success' ? 'text-emerald-600' : variant === 'error' ? 'text-red-600' : 'text-navy';
+    const toast = document.createElement('div');
+    toast.className = 'toast-in flex items-center gap-2.5 bg-white border border-slate-200 shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] rounded-xl px-4 py-3 text-sm text-navy min-w-[240px] max-w-sm';
+    toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${accent} shrink-0"></i><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    lucide.createIcons();
+    setTimeout(() => {
+      toast.style.transition = 'opacity .2s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+    }, 3200);
+  }
+
+  /* =========================================================
+     Settings section switching
+  ========================================================= */
+  const navBtns = document.querySelectorAll('.settings-nav-btn');
+  const sections = document.querySelectorAll('[data-section]');
+
+  function showSection(target) {
+    sections.forEach((s) => s.classList.toggle('hidden', s.dataset.section !== target));
+    navBtns.forEach((btn) => {
+      const active = btn.dataset.target === target;
+      const isDanger = btn.dataset.target === 'tehlikeli';
+      btn.classList.toggle('bg-white', active && !isDanger);
+      btn.classList.toggle('border', active && !isDanger);
+      btn.classList.toggle('border-slate-200', active && !isDanger);
+      btn.classList.toggle('lg:bg-transparent', !active);
+      btn.classList.toggle('lg:border-0', true);
+      btn.classList.toggle('text-navy', active && !isDanger);
+      btn.classList.toggle('text-slate-500', !active && !isDanger);
+      btn.classList.toggle('bg-red-50', active && isDanger);
+      btn.classList.toggle('text-red-600', isDanger);
+    });
+    history.replaceState(null, '', `#${target}`);
+  }
+  navBtns.forEach((btn) => btn.addEventListener('click', () => showSection(btn.dataset.target)));
+  showSection(location.hash ? location.hash.slice(1) : 'hesap');
+
+  /* =========================================================
+     Hesap — prefill from /auth/me, save via PATCH /auth/me
+  ========================================================= */
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  const PLAN_LABEL = { free: 'Ücretsiz Plan', premium: 'Premium Plan' };
+  const PLAN_DESC = {
+    free: 'Sınırlı yükleme ve analiz hakkı ile devam ediyorsunuz.',
+    premium: 'Sınırsız yükleme ve öncelikli AI analiziyle çalışıyorsunuz.',
+  };
+
+  function formatBytes(bytes) {
+    if (!bytes) return '0 MB';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
+
+  /* ---------------- Profile photo (avatar) ----------------
+     Same blob-with-JWT pattern as profile.html — the avatar endpoint is
+     token-protected so it's fetched and painted onto the existing avatar
+     circles rather than used as a plain <img src>. */
+  const AVATAR_ELS = ['sidebarAvatar', 'profileAvatar', 'accountAvatar'];
+
+  function paintAvatar(objectUrl) {
+    AVATAR_ELS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.backgroundImage = `url("${objectUrl}")`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.textContent = '';
+    });
+  }
+
+  async function loadAvatar() {
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const res = await fetch(`${API_BASE_URL}/auth/me/avatar`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) paintAvatar(URL.createObjectURL(await res.blob()));
+    } catch (err) { /* keep initials fallback */ }
+  }
+
+  const avatarInput = document.createElement('input');
+  avatarInput.type = 'file';
+  avatarInput.accept = 'image/jpeg,image/png,image/webp';
+  avatarInput.className = 'hidden';
+  document.body.appendChild(avatarInput);
+  document.getElementById('changePhotoBtn').addEventListener('click', () => avatarInput.click());
+  avatarInput.addEventListener('change', async () => {
+    const file = avatarInput.files[0];
+    avatarInput.value = '';
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { showToast('Fotoğraf boyutu 2MB sınırını aşıyor.', 'error'); return; }
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      await request('/auth/me/avatar', { method: 'POST', body: formData });
+      await loadAvatar();
+      showToast('Profil fotoğrafı güncellendi.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Fotoğraf yüklenemedi.', 'error');
+    }
+  });
+
+  async function loadProfile() {
+    let user;
+    try {
+      user = await request('/auth/me');
+    } catch (err) {
+      user = { fullName: '—', email: '', lawFirm: '', phone: '', baroNumber: '', city: '', plan: 'free' };
+    }
+
+    document.getElementById('sidebarUserName').textContent = user.fullName;
+    document.getElementById('sidebarAvatar').textContent = initials(user.fullName);
+    document.getElementById('profileAvatar').textContent = initials(user.fullName);
+    document.getElementById('accountAvatar').textContent = initials(user.fullName);
+    if (user.hasAvatar) loadAvatar();
+
+    document.getElementById('accFullName').value = user.fullName || '';
+    document.getElementById('accEmail').value = user.email || '';
+    document.getElementById('accPhone').value = user.phone || '';
+    document.getElementById('accBaro').value = user.baroNumber || '';
+    document.getElementById('accLawFirm').value = user.lawFirm || '';
+    document.getElementById('accCity').value = user.city || '';
+
+    const planKey = user.plan || 'free';
+    document.getElementById('planNameHeading').textContent = PLAN_LABEL[planKey] || planKey;
+    document.getElementById('planDescText').textContent = PLAN_DESC[planKey] || '';
+    document.getElementById('upgradePlanBtn').classList.toggle('hidden', planKey === 'premium');
+
+    document.getElementById('planPdfUsage').textContent = '—';
+    try {
+      const usage = await request('/uploads/usage');
+      document.getElementById('planPdfUsage').textContent = `${usage.used} / ${usage.limit}`;
+      document.getElementById('planStorageText').textContent = formatBytes(usage.totalBytes);
+      document.getElementById('storageUsageText').textContent = `${usage.used} / ${usage.limit} dosya`;
+      document.getElementById('storageUsageBar').style.width = `${Math.min((usage.used / usage.limit) * 100, 100)}%`;
+    } catch (err) {
+      document.getElementById('planPdfUsage').textContent = '2 / 3';
+      document.getElementById('planStorageText').textContent = '4.6 MB';
+      document.getElementById('storageUsageText').textContent = '2 / 3 dosya';
+      document.getElementById('storageUsageBar').style.width = '66%';
+    }
+
+    try {
+      const activity = await request('/activity?limit=200');
+      const aiCount = activity.filter((e) => e.type.startsWith('ai_')).length;
+      document.getElementById('planAiCountText').textContent = aiCount;
+    } catch (err) {
+      document.getElementById('planAiCountText').textContent = '0';
+    }
+  }
+
+  const accountForm = document.getElementById('accountForm');
+  const originalValues = {};
+  accountForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById('accFullName');
+    const isValid = fullName.value.trim().length > 0;
+    fullName.closest('div').querySelector('.field-error')?.classList.toggle('hidden', isValid);
+    fullName.closest('div').querySelector('.field-error')?.classList.toggle('flex', !isValid);
+    if (!isValid) return;
+
+    const payload = {
+      fullName: fullName.value.trim(),
+      phone: document.getElementById('accPhone').value.trim() || null,
+      baroNumber: document.getElementById('accBaro').value.trim() || null,
+      lawFirm: document.getElementById('accLawFirm').value.trim() || null,
+      city: document.getElementById('accCity').value.trim() || null,
+    };
+
+    try {
+      await request('/auth/me', { method: 'PATCH', body: payload });
+      document.getElementById('sidebarUserName').textContent = payload.fullName;
+      document.getElementById('sidebarAvatar').textContent = initials(payload.fullName);
+      document.getElementById('profileAvatar').textContent = initials(payload.fullName);
+      document.getElementById('accountAvatar').textContent = initials(payload.fullName);
+      showToast('Profil güncellendi.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Profil güncellenemedi.', 'error');
+    }
+  });
+  document.getElementById('accountCancelBtn').addEventListener('click', () => loadProfile());
+
+  /* =========================================================
+     Güvenlik — password visibility, strength meter, change
+  ========================================================= */
+  document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.togglePassword);
+      const icon = btn.querySelector('i');
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+      lucide.createIcons();
+    });
+  });
+
+  function scorePassword(value) {
+    let score = 0;
+    if (value.length >= 8) score++;
+    if (value.length >= 12) score++;
+    if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+    if (/[0-9]/.test(value) && /[^A-Za-z0-9]/.test(value)) score++;
+    return score;
+  }
+  const STRENGTH_META = [
+    { label: 'En az 8 karakter kullanın.', color: '#e2e8f0' },
+    { label: 'Zayıf şifre.', color: '#dc2626' },
+    { label: 'Orta güçlükte şifre.', color: '#d97706' },
+    { label: 'Güçlü şifre.', color: '#059669' },
+    { label: 'Çok güçlü şifre.', color: '#059669' },
+  ];
+  const newPasswordInput = document.getElementById('newPassword');
+  const strengthBars = document.querySelectorAll('.strength-bar');
+  newPasswordInput.addEventListener('input', () => {
+    const score = newPasswordInput.value ? scorePassword(newPasswordInput.value) : 0;
+    const meta = STRENGTH_META[score];
+    strengthBars.forEach((bar, i) => { bar.style.background = i < score ? meta.color : '#e2e8f0'; });
+    document.getElementById('strengthLabel').textContent = meta.label;
+  });
+
+  document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cur = document.getElementById('curPassword');
+    const next = document.getElementById('newPassword');
+    const repeat = document.getElementById('repeatPassword');
+
+    const curValid = cur.value.length > 0;
+    cur.closest('div').querySelector('.field-error')?.classList.toggle('hidden', curValid);
+    cur.closest('div').querySelector('.field-error')?.classList.toggle('flex', !curValid);
+
+    const matchValid = next.value.length >= 8 && next.value === repeat.value;
+    repeat.closest('div').querySelector('.field-error')?.classList.toggle('hidden', matchValid);
+    repeat.closest('div').querySelector('.field-error')?.classList.toggle('flex', !matchValid);
+
+    if (!curValid || !matchValid) return;
+
+    try {
+      await request('/auth/change-password', {
+        method: 'POST',
+        body: { currentPassword: cur.value, newPassword: next.value },
+      });
+      showToast('Şifreniz güncellendi.', 'success');
+      e.target.reset();
+      strengthBars.forEach((bar) => { bar.style.background = '#e2e8f0'; });
+      document.getElementById('strengthLabel').textContent = 'En az 8 karakter kullanın.';
+    } catch (err) {
+      showToast(err.message || 'Şifre güncellenemedi.', 'error');
+    }
+  });
+
+  /* ---------------- Active sessions (demo) ---------------- */
+  let SESSIONS = [
+    { id: 's1', browser: 'Chrome', icon: 'chrome', os: 'Windows', location: 'İstanbul', active: true, lastActive: 'Şu anda aktif' },
+    { id: 's2', browser: 'Firefox', icon: 'globe', os: 'macOS', location: 'Ankara', active: false, lastActive: '2 gün önce' },
+  ];
+  function renderSessions() {
+    const list = document.getElementById('sessionsList');
+    list.innerHTML = SESSIONS.map((s) => `
+      <div class="flex items-center gap-3 border border-slate-200 rounded-lg p-3.5">
+        <div class="w-9 h-9 rounded-lg bg-navy/5 flex items-center justify-center shrink-0">
+          <i data-lucide="${s.icon}" class="w-4 h-4 text-navy"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy">${s.browser} · ${s.os}</p>
+          <p class="text-xs text-slate-400">${s.location} · ${s.lastActive}</p>
+        </div>
+        ${s.active
+          ? '<span class="text-[10px] font-bold uppercase tracking-wide text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full shrink-0">Bu Cihaz</span>'
+          : `<button data-session="${s.id}" class="terminate-session-btn shrink-0 text-xs font-semibold text-red-600 hover:text-red-700 transition">Sonlandır</button>`}
+      </div>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.terminate-session-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        SESSIONS = SESSIONS.filter((s) => s.id !== btn.dataset.session);
+        renderSessions();
+        showToast('Oturum sonlandırıldı.', 'success');
+      });
+    });
+  }
+  renderSessions();
+  document.getElementById('terminateAllBtn').addEventListener('click', () => {
+    showToast('Tüm cihazlardan çıkış yapılıyor...', 'info');
+    setTimeout(logout, 800);
+  });
+
+  if (window.location.protocol !== 'https:') {
+    const item = document.getElementById('httpsStatusItem');
+    item.innerHTML = '<i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 shrink-0"></i> HTTPS Bağlantısı (geliştirme ortamında kapalı)';
+    lucide.createIcons();
+  }
+  document.getElementById('lastLoginText').textContent = new Date().toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+
+  /* =========================================================
+     User preferences — persisted in MongoDB via GET/PUT
+     /preferences (notifications / AI / appearance / PDF).
+     The DOM wiring below still works against a flat `prefs`
+     object (unchanged shape from before); only the boundary —
+     where it's loaded from and saved to — moved from
+     localStorage to the backend.
+  ========================================================= */
+  const PREF_SECTION = {
+    notifyMaster: 'notifications', notifyAnalysis: 'notifications', notifyUpload: 'notifications',
+    notifySystem: 'notifications', notifyPromo: 'notifications', notifyWeekly: 'notifications',
+    aiModel: 'ai', responseLengthGroup: 'ai', autoSummary: 'ai', autoRisk: 'ai', autoDraft: 'ai',
+    themeGroup: 'appearance', sidebarWidthGroup: 'appearance', densityGroup: 'appearance', animations: 'appearance',
+    pdfFolder: 'pdf', autoAnalyzeOnUpload: 'pdf', autoOcr: 'pdf', keepOriginal: 'pdf',
+  };
+
+  function nestedToFlat(nested) {
+    return { ...nested.notifications, ...nested.ai, ...nested.appearance, ...nested.pdf };
+  }
+  function flatToNested(flat) {
+    const nested = { notifications: {}, ai: {}, appearance: {}, pdf: {} };
+    Object.entries(flat).forEach(([key, value]) => {
+      const section = PREF_SECTION[key];
+      if (section) nested[section][key] = value;
+    });
+    return nested;
+  }
+
+  let prefs = {};
+
+  async function persistPrefs(showSuccessToast = true) {
+    try {
+      await request('/preferences', { method: 'PUT', body: flatToNested(prefs) });
+      if (showSuccessToast) showToast('Tercih kaydedildi.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Tercih kaydedilemedi.', 'error');
+    }
+  }
+
+  function applySegmentGroup(group, value) {
+    group.querySelectorAll('.segment-btn').forEach((b) => {
+      const active = b.dataset.value === value;
+      b.classList.toggle('bg-white', active);
+      b.classList.toggle('shadow', active);
+      b.classList.toggle('text-navy', active);
+      b.classList.toggle('font-semibold', active);
+      b.classList.toggle('text-slate-500', !active);
+    });
+  }
+
+  async function initPreferences() {
+    try {
+      prefs = nestedToFlat(await request('/preferences'));
+    } catch (err) {
+      prefs = {};
+    }
+
+    document.querySelectorAll('[data-pref]').forEach((input) => {
+      const key = input.dataset.pref;
+      if (key in prefs) input.checked = prefs[key];
+      input.addEventListener('change', () => {
+        prefs[key] = input.checked;
+        if (key === 'notifyMaster') {
+          document.querySelectorAll('[data-pref^="notify"]').forEach((el) => {
+            if (el === input || el.dataset.pref === 'notifySecurity') return;
+            el.checked = input.checked;
+            prefs[el.dataset.pref] = input.checked;
+          });
+        }
+        persistPrefs();
+      });
+    });
+
+    document.querySelectorAll('.segment-btn').forEach((btn) => {
+      const group = btn.closest('div[id]');
+      const key = group.id;
+      btn.addEventListener('click', () => {
+        if (key === 'themeGroup' && btn.dataset.value !== 'acik') {
+          showToast('Koyu tema yakında eklenecek.', 'info');
+        }
+        prefs[key] = btn.dataset.value;
+        applySegmentGroup(group, prefs[key]);
+        persistPrefs();
+      });
+    });
+    document.querySelectorAll('div[id$="Group"]').forEach((group) => {
+      const defaultValue = prefs[group.id] || group.querySelector('.segment-btn').dataset.value;
+      applySegmentGroup(group, defaultValue);
+    });
+
+    const aiModelSelect = document.getElementById('aiModel');
+    if (prefs.aiModel) aiModelSelect.value = prefs.aiModel;
+    aiModelSelect.addEventListener('change', () => {
+      prefs.aiModel = aiModelSelect.value;
+      persistPrefs();
+    });
+
+    const pdfFolderSelect = document.getElementById('pdfFolder');
+    if (prefs.pdfFolder !== undefined) pdfFolderSelect.value = prefs.pdfFolder;
+    pdfFolderSelect.addEventListener('change', () => {
+      prefs.pdfFolder = pdfFolderSelect.value;
+      persistPrefs();
+    });
+  }
+
+  document.getElementById('englishLangBtn').addEventListener('click', () => showToast('İngilizce dil desteği yakında eklenecek.', 'info'));
+
+  document.getElementById('maxFileSizeText').textContent = `${Math.round(MAX_FILE_SIZE / (1024 * 1024))} MB`;
+
+  /* =========================================================
+     Tehlikeli Bölge — real cascade deletes:
+       uploads       -> DELETE /uploads    (all PDFs + files)
+       conversations -> DELETE /ai/history (all chat + AI results)
+       account       -> DELETE /auth/me    (full account cascade)
+  ========================================================= */
+  const DANGER_META = {
+    uploads: { title: 'Tüm PDF\'leri silmek üzeresiniz', text: 'Hesabınızdaki tüm yüklenen dosyalar kalıcı olarak silinecektir. Bu işlem geri alınamaz.', requireTyped: false },
+    conversations: { title: 'Tüm AI konuşmalarını silmek üzeresiniz', text: 'Geçmiş sohbet ve analiz kayıtlarınız kalıcı olarak silinecektir. Bu işlem geri alınamaz.', requireTyped: false },
+    account: { title: 'Hesabınızı silmek üzeresiniz', text: 'Hesabınız ve tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.', requireTyped: true },
+  };
+  const dangerModal = document.getElementById('dangerModal');
+  const dangerConfirmWrap = document.getElementById('dangerConfirmWrap');
+  const dangerConfirmInput = document.getElementById('dangerConfirmInput');
+  const confirmDangerBtn = document.getElementById('confirmDanger');
+  let pendingDangerAction = null;
+
+  document.querySelectorAll('.danger-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const meta = DANGER_META[btn.dataset.danger];
+      pendingDangerAction = btn.dataset.danger;
+      document.getElementById('dangerModalTitle').textContent = meta.title;
+      document.getElementById('dangerModalText').textContent = meta.text;
+      dangerConfirmWrap.classList.toggle('hidden', !meta.requireTyped);
+      dangerConfirmInput.value = '';
+      confirmDangerBtn.disabled = meta.requireTyped;
+      openModal(dangerModal);
+    });
+  });
+  dangerConfirmInput.addEventListener('input', () => {
+    confirmDangerBtn.disabled = dangerConfirmInput.value.trim() !== 'SİL';
+  });
+  document.getElementById('cancelDanger').addEventListener('click', () => closeModal(dangerModal));
+  dangerModal.addEventListener('click', (e) => { if (e.target === dangerModal) closeModal(dangerModal); });
+  const DANGER_ACTION = {
+    uploads: {
+      request: () => request('/uploads', { method: 'DELETE' }),
+      done: (res) => showToast(`${res.deleted} PDF kalıcı olarak silindi.`, 'success'),
+    },
+    conversations: {
+      request: () => request('/ai/history', { method: 'DELETE' }),
+      done: (res) => showToast(`${res.deleted} AI kaydı kalıcı olarak silindi.`, 'success'),
+    },
+    account: {
+      request: () => request('/auth/me', { method: 'DELETE' }),
+      // Account is gone — tear down the local session and send them to login.
+      done: () => {
+        showToast('Hesabınız kalıcı olarak silindi.', 'success');
+        setTimeout(logout, 1200);
+      },
+    },
+  };
+
+  confirmDangerBtn.addEventListener('click', async () => {
+    const action = DANGER_ACTION[pendingDangerAction];
+    if (!action) { closeModal(dangerModal); return; }
+
+    confirmDangerBtn.disabled = true;
+    try {
+      const res = await action.request();
+      closeModal(dangerModal);
+      action.done(res || {});
+    } catch (err) {
+      closeModal(dangerModal);
+      showToast(err.message || 'İşlem başarısız oldu.', 'error');
+    } finally {
+      confirmDangerBtn.disabled = false;
+      pendingDangerAction = null;
+    }
+  });
+
+  /* ---------------- Init ---------------- */
+  loadProfile();
+  initPreferences();
+  loadNotifications();
+  loadPaletteCases();
+  lucide.createIcons();
+</script>
+</body>
+</html>

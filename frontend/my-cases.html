@@ -86,13 +86,10 @@
       <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
-        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="gecmis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
       </a>
     </nav>
@@ -105,15 +102,15 @@
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
         </ul>
-        <button class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+        <button id="sidebarUpgradeBtn" class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
           <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
         </button>
       </div>
 
       <div class="flex items-center gap-3 px-1 mt-4">
-        <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+        <div id="sidebarAvatar" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">—</div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
+          <p id="sidebarUserName" class="text-sm font-medium truncate">—</p>
           <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
         </div>
       </div>
@@ -144,19 +141,29 @@
 
       <div class="flex-1"></div>
 
-      <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
-        <i data-lucide="bell" class="w-5 h-5"></i>
-        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
-      </button>
+      <div class="relative shrink-0">
+        <button id="notifBtn" class="relative text-slate-500 hover:text-navy transition" aria-label="Bildirimler">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span id="notifDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+        </button>
+        <div id="notifMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-2 z-50">
+          <div class="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
+            <span class="text-sm font-bold text-navy">Bildirimler</span>
+            <button id="notifMarkAllBtn" class="text-xs font-semibold text-navy hover:text-gold transition">Tümünü okundu işaretle</button>
+          </div>
+          <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+          <div id="notifEmpty" class="hidden text-center py-8 text-sm text-slate-400">Bildirim yok.</div>
+        </div>
+      </div>
 
       <div class="relative shrink-0">
         <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
-          <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+          <div id="profileAvatar" class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">—</div>
           <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
         </button>
         <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
-          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
-          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <a href="profile.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="settings.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
           <div class="h-px bg-slate-100 my-1.5"></div>
           <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
         </div>
@@ -396,7 +403,7 @@
 
 <script type="module">
   import { TOKEN_KEY } from './js/config/env.js';
-  import { clearSession } from './js/api/http.js';
+  import { request, clearSession } from './js/api/http.js';
   import { escapeHtml } from './js/utils/sanitize.js';
 
   /* =========================================================
@@ -454,25 +461,73 @@
   }
 
   /* =========================================================
-     Demo data — replace with real API responses when the
-     backend is ready (GET /api/cases, GET /api/folders).
+     Folders are still local-only (no /api/folders endpoint yet).
+     Cases load from the real backend via loadCases() below; this
+     demo list is only the fallback when the backend is unreachable.
   ========================================================= */
-  const FOLDERS = [
-    { id: 'is-hukuku', name: 'İş Hukuku', icon: 'briefcase', updatedAt: '2 gün önce' },
-    { id: 'ceza-hukuku', name: 'Ceza Hukuku', icon: 'gavel', updatedAt: '1 hafta önce' },
-    { id: 'aile-hukuku', name: 'Aile Hukuku', icon: 'users', updatedAt: '3 gün önce' },
-    { id: 'ticaret-hukuku', name: 'Ticaret Hukuku', icon: 'building-2', updatedAt: '5 gün önce' },
-    { id: 'icra-dosyalari', name: 'İcra Dosyaları', icon: 'file-warning', updatedAt: '1 gün önce' },
-  ];
+  // Loaded from GET /folders (per-user, includes custom folders). Each item:
+  // { id: <mongoId>, slug, name, icon, isDefault }. `state.folder` and each
+  // case's `folder` are matched by SLUG (backward compatible with the old
+  // fixed folder ids, which are now the default folders' slugs).
+  let FOLDERS = [];
 
-  let CASES = [
-    { id: '1', title: 'Yılmaz vs. ABC Ltd.', client: 'Ayşe Yılmaz', caseNumber: '2026/114', status: 'devam', folder: 'is-hukuku', lastActivity: '2 saat önce', pdfCount: 3, aiStatus: 'hazir', risk: 'orta', pinned: true },
-    { id: '2', title: 'Kurtuluş İş Davası', client: 'Mehmet Kurtuluş', caseNumber: '2026/098', status: 'devam', folder: 'is-hukuku', lastActivity: '5 saat önce', pdfCount: 1, aiStatus: 'isleniyor', risk: 'dusuk', pinned: false },
-    { id: '3', title: 'Demir Kira Sözleşmesi İhtilafı', client: 'Zeynep Demir', caseNumber: '2025/512', status: 'tamamlandi', folder: 'ticaret-hukuku', lastActivity: '3 hafta önce', pdfCount: 5, aiStatus: 'hazir', risk: 'kritik', pinned: false },
-    { id: '4', title: 'Aksoy Boşanma Davası', client: 'Elif Aksoy', caseNumber: '2026/037', status: 'beklemede', folder: 'aile-hukuku', lastActivity: '2 gün önce', pdfCount: 2, aiStatus: 'bekliyor', risk: 'dusuk', pinned: false },
-    { id: '5', title: 'Şahin Ceza Davası', client: 'Burak Şahin', caseNumber: '2026/201', status: 'devam', folder: 'ceza-hukuku', lastActivity: '1 gün önce', pdfCount: 4, aiStatus: 'hazir', risk: 'kritik', pinned: true },
-    { id: '6', title: 'Özkan İcra Takibi', client: 'Fatma Özkan', caseNumber: '2026/076', status: 'tamamlandi', folder: 'icra-dosyalari', lastActivity: '4 gün önce', pdfCount: 2, aiStatus: 'hazir', risk: 'orta', pinned: false },
-  ];
+  async function loadFolders() {
+    try {
+      FOLDERS = await request('/folders');
+    } catch (err) {
+      FOLDERS = []; // backend unreachable — no folder chips rather than fake ones
+    }
+    renderFolderFilterOptions();
+  }
+
+  function renderFolderFilterOptions() {
+    const sel = document.getElementById('folderFilter');
+    const current = sel.value || 'all';
+    sel.innerHTML = '<option value="all">Tüm Klasörler</option>' +
+      FOLDERS.map((f) => `<option value="${f.slug}">${escapeHtml(f.name)}</option>`).join('');
+    sel.value = FOLDERS.some((f) => f.slug === current) || current === 'all' ? current : 'all';
+  }
+
+  let CASES = [];
+
+  function formatRelativeTime(isoString) {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return 'az önce';
+    if (minutes < 60) return `${minutes} dakika önce`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} saat önce`;
+    const days = Math.floor(hours / 24);
+    return `${days} gün önce`;
+  }
+
+  // Backend doesn't track AI analysis status or risk level per case yet —
+  // real cases start in the same "not analyzed" state a brand new case
+  // would show in the demo data.
+  function mapBackendCase(c) {
+    return {
+      id: c.id,
+      title: c.title,
+      client: c.client || '—',
+      caseNumber: c.caseNumber,
+      status: c.status,
+      folder: c.folder,
+      lastActivity: formatRelativeTime(c.createdAt),
+      pdfCount: c.pdfCount,
+      aiStatus: 'bekliyor',
+      risk: 'dusuk',
+      pinned: c.pinned || false,
+    };
+  }
+
+  async function loadCases() {
+    try {
+      const backendCases = await request('/cases');
+      CASES = backendCases.map(mapBackendCase);
+    } catch (err) {
+      CASES = []; // backend unreachable — show the empty state, not fake cases
+    }
+  }
 
   const STATUS_META = {
     devam: { label: 'Devam Ediyor', className: 'bg-blue-50 text-blue-600' },
@@ -528,16 +583,101 @@
   document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
   document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
 
+  /* =========================================================
+     Identity + plan — real /auth/me
+  ========================================================= */
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+  async function loadIdentity() {
+    let user;
+    try {
+      user = await request('/auth/me');
+    } catch (err) {
+      user = { fullName: '—', plan: 'free' };
+    }
+    document.getElementById('sidebarUserName').textContent = user.fullName;
+    document.getElementById('sidebarAvatar').textContent = initials(user.fullName);
+    document.getElementById('profileAvatar').textContent = initials(user.fullName);
+  }
+
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', async () => {
+    try {
+      await request('/billing/upgrade', { method: 'POST' });
+      showToast('Premium plana yükseltildiniz!', 'success');
+      loadNotifications();
+    } catch (err) {
+      showToast(err.message || 'Yükseltme başarısız oldu.', 'error');
+    }
+  });
+
+  /* =========================================================
+     Notifications
+  ========================================================= */
+  const NOTIF_ICON = { upload_completed: 'upload-cloud', analysis_completed: 'sparkles', system: 'info', security: 'shield-alert' };
+  function formatNotifRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+  function renderNotifications(items) {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('notifEmpty');
+    document.getElementById('notifDot').classList.toggle('hidden', items.every((n) => n.read));
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = items.map((n) => `
+      <button data-id="${n.id}" class="notif-item w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition ${n.read ? '' : 'bg-navy/[0.03]'}">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="${NOTIF_ICON[n.type] || 'bell'}" class="w-4 h-4 text-navy"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${escapeHtml(n.title)}</p>
+          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(n.message)}</p>
+          <p class="text-[11px] text-slate-400 mt-1">${formatNotifRelative(n.createdAt)}</p>
+        </div>
+        ${n.read ? '' : '<span class="w-2 h-2 rounded-full bg-gold shrink-0 mt-1.5"></span>'}
+      </button>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.notif-item').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try { await request(`/notifications/${btn.dataset.id}/read`, { method: 'POST' }); } catch (err) { /* no-op */ }
+        loadNotifications();
+      });
+    });
+  }
+  async function loadNotifications() {
+    try {
+      renderNotifications(await request('/notifications?limit=15'));
+    } catch (err) {
+      renderNotifications([]);
+    }
+  }
+  const notifBtn = document.getElementById('notifBtn');
+  const notifMenu = document.getElementById('notifMenu');
+  notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => notifMenu.classList.add('hidden'));
+  document.getElementById('notifMarkAllBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try { await request('/notifications/read-all', { method: 'POST' }); } catch (err) { /* no-op */ }
+    loadNotifications();
+  });
+
   /* ---------------- Command palette (⌘K) ---------------- */
   const PALETTE_NAV = [
     { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
     { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
     { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
   ];
-  const PALETTE_CASES = [
-    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
-    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
-  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+  function getPaletteCases() {
+    return CASES.map((c) => ({ label: c.title, icon: 'briefcase', href: `index.html?caseId=${c.id}` }));
+  }
 
   const palette = document.getElementById('commandPalette');
   const paletteInput = document.getElementById('paletteInput');
@@ -566,7 +706,7 @@
   function renderPaletteResults(query) {
     const q = query.trim().toLowerCase();
     const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
-    const caseMatches = PALETTE_CASES.filter((i) => i.label.toLowerCase().includes(q));
+    const caseMatches = getPaletteCases().filter((i) => i.label.toLowerCase().includes(q));
     const html = paletteSection('Sayfalar', navMatches) + paletteSection('Davalar', caseMatches);
     paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
     lucide.createIcons();
@@ -606,22 +746,22 @@
   }
 
   /* ---------------- Quick access: pinned + recently viewed ----------------
-     Recently-viewed is tracked in localStorage so it survives navigation to
-     index.html and back (see trackRecentCase() calls on "Dosyayı Aç" links
-     and on index.html's own load). */
+     Recently-viewed case IDs are tracked in localStorage so the rail
+     survives navigation to index.html and back (index.html writes to the
+     same key once it resolves which case it's showing). */
   const RECENT_CASES_KEY = 'lexassist_recent_cases';
 
-  function trackRecentCase(title) {
+  function trackRecentCase(id) {
     let recent = JSON.parse(localStorage.getItem(RECENT_CASES_KEY) || '[]');
-    recent = recent.filter((t) => t !== title);
-    recent.unshift(title);
+    recent = recent.filter((x) => x !== id);
+    recent.unshift(id);
     localStorage.setItem(RECENT_CASES_KEY, JSON.stringify(recent.slice(0, 5)));
   }
 
-  function quickAccessChip(title, icon, iconClass) {
+  function quickAccessChip(id, title, icon, iconClass) {
     const safeTitle = escapeHtml(title);
     return `
-      <a href="index.html" data-open-case-title="${safeTitle}" class="fade-in shrink-0 flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl pl-3 pr-4 py-2.5 card-lift transition max-w-[220px]">
+      <a href="index.html?caseId=${id}" data-open-case-id="${id}" class="fade-in shrink-0 flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl pl-3 pr-4 py-2.5 card-lift transition max-w-[220px]">
         <span class="w-7 h-7 rounded-lg bg-navy/5 flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-3.5 h-3.5 ${iconClass}"></i></span>
         <span class="text-xs font-medium text-navy truncate">${safeTitle}</span>
       </a>
@@ -630,51 +770,88 @@
 
   function renderQuickAccess() {
     const pinned = CASES.filter((c) => c.pinned);
-    const recentTitles = JSON.parse(localStorage.getItem(RECENT_CASES_KEY) || '[]').filter(
-      (title) => !pinned.some((c) => c.title === title)
-    );
+    const recentIds = JSON.parse(localStorage.getItem(RECENT_CASES_KEY) || '[]')
+      .filter((id) => !pinned.some((c) => c.id === id))
+      .map((id) => CASES.find((c) => c.id === id))
+      .filter(Boolean);
 
-    document.getElementById('quickAccessSection').classList.toggle('hidden', pinned.length === 0 && recentTitles.length === 0);
+    document.getElementById('quickAccessSection').classList.toggle('hidden', pinned.length === 0 && recentIds.length === 0);
 
     document.getElementById('pinnedRail').classList.toggle('hidden', pinned.length === 0);
-    document.getElementById('pinnedList').innerHTML = pinned.map((c) => quickAccessChip(c.title, 'pin', 'text-gold')).join('');
+    document.getElementById('pinnedList').innerHTML = pinned.map((c) => quickAccessChip(c.id, c.title, 'pin', 'text-gold')).join('');
 
-    document.getElementById('recentRail').classList.toggle('hidden', recentTitles.length === 0);
-    document.getElementById('recentList').innerHTML = recentTitles.map((title) => quickAccessChip(title, 'clock', 'text-slate-400')).join('');
+    document.getElementById('recentRail').classList.toggle('hidden', recentIds.length === 0);
+    document.getElementById('recentList').innerHTML = recentIds.map((c) => quickAccessChip(c.id, c.title, 'clock', 'text-slate-400')).join('');
 
     lucide.createIcons();
-    document.querySelectorAll('[data-open-case-title]').forEach((link) =>
-      link.addEventListener('click', () => trackRecentCase(link.dataset.openCaseTitle)));
+    document.querySelectorAll('[data-open-case-id]').forEach((link) =>
+      link.addEventListener('click', () => trackRecentCase(link.dataset.openCaseId)));
   }
 
   /* ---------------- Folders ---------------- */
   function renderFolders() {
     const grid = document.getElementById('foldersGrid');
+    // A div (not button) so a custom folder's delete button can nest inside
+    // without invalid button-in-button markup; keeps the identical look.
     grid.innerHTML = FOLDERS.map((folder) => {
-      const count = CASES.filter((c) => c.folder === folder.id).length;
-      const active = state.folder === folder.id;
+      const count = CASES.filter((c) => c.folder === folder.slug).length;
+      const active = state.folder === folder.slug;
+      const safeName = escapeHtml(folder.name);
+      const deleteBtn = folder.isDefault ? '' : `
+        <button data-delete-folder="${folder.id}" data-folder-name="${safeName}" title="Klasörü sil" aria-label="Klasörü sil"
+          class="absolute top-2.5 right-2.5 w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>`;
       return `
-        <button data-folder="${folder.id}"
-          class="folder-card text-left bg-white border ${active ? 'border-navy ring-1 ring-navy/10' : 'border-slate-200'} rounded-xl p-4 card-lift transition">
+        <div data-folder="${folder.slug}" role="button" tabindex="0"
+          class="folder-card relative text-left bg-white border ${active ? 'border-navy ring-1 ring-navy/10' : 'border-slate-200'} rounded-xl p-4 card-lift transition cursor-pointer">
           <div class="w-10 h-10 rounded-lg ${active ? 'bg-navy text-white' : 'bg-navy/5 text-navy'} flex items-center justify-center transition">
             <i data-lucide="${folder.icon}" class="w-4 h-4"></i>
           </div>
-          <p class="text-sm font-semibold text-navy mt-3 truncate">${folder.name}</p>
-          <p class="text-xs text-slate-400 mt-0.5">${count} dava · ${folder.updatedAt}</p>
-        </button>
+          <p class="text-sm font-semibold text-navy mt-3 truncate pr-6">${safeName}</p>
+          <p class="text-xs text-slate-400 mt-0.5">${count} dava</p>
+          ${deleteBtn}
+        </div>
       `;
     }).join('');
 
-    grid.querySelectorAll('.folder-card').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.folder = state.folder === btn.dataset.folder ? 'all' : btn.dataset.folder;
-        document.getElementById('folderFilter').value = state.folder;
+    grid.querySelectorAll('.folder-card').forEach((card) => {
+      const selectFolder = () => {
+        state.folder = state.folder === card.dataset.folder ? 'all' : card.dataset.folder;
+        document.getElementById('folderFilter').value = FOLDERS.some((f) => f.slug === state.folder) ? state.folder : 'all';
         renderFolders();
         renderCases();
+      };
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-delete-folder]')) return;
+        selectFolder();
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); selectFolder(); }
       });
     });
 
+    grid.querySelectorAll('[data-delete-folder]').forEach((btn) =>
+      btn.addEventListener('click', (e) => { e.stopPropagation(); handleDeleteFolder(btn.dataset.deleteFolder, btn.dataset.folderName); }));
+
     lucide.createIcons();
+  }
+
+  async function handleDeleteFolder(id, name) {
+    if (!confirm(`"${name}" klasörünü silmek istediğinize emin misiniz?\n\nKlasördeki davalar silinmez, "Klasörsüz" durumuna alınır.`)) return;
+    try {
+      await request(`/folders/${id}`, { method: 'DELETE' });
+      const slug = FOLDERS.find((f) => f.id === id)?.slug;
+      if (state.folder === slug) state.folder = 'all';
+      // Cases that were in this folder are unfiled server-side — reflect it locally.
+      CASES.forEach((c) => { if (c.folder === slug) c.folder = null; });
+      await loadFolders();
+      renderFolders();
+      renderCases();
+      showToast('Klasör silindi.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Klasör silinemedi.', 'error');
+    }
   }
 
   /* ---------------- Cases ---------------- */
@@ -695,7 +872,7 @@
     const status = STATUS_META[c.status];
     const ai = AI_STATUS_META[c.aiStatus];
     const risk = RISK_META[c.risk];
-    const folderName = FOLDERS.find((f) => f.id === c.folder)?.name || '';
+    const folderName = FOLDERS.find((f) => f.slug === c.folder)?.name || '';
     const safeTitle = escapeHtml(c.title);
     const safeClient = escapeHtml(c.client);
 
@@ -712,8 +889,8 @@
           <i data-lucide="more-vertical" class="w-4 h-4"></i>
         </button>
         <div data-menu="${c.id}" class="hidden pop-in absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-20">
-          <a href="index.html" data-open-case="${c.id}" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="folder-open" class="w-4 h-4"></i> Dosyayı Aç</a>
-          <a href="upload.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="upload" class="w-4 h-4"></i> PDF Yükle</a>
+          <a href="index.html?caseId=${c.id}" data-open-case="${c.id}" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="folder-open" class="w-4 h-4"></i> Dosyayı Aç</a>
+          <a href="upload.html?caseId=${c.id}" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="upload" class="w-4 h-4"></i> PDF Yükle</a>
           <button data-action="rename" data-id="${c.id}" class="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="pencil" class="w-4 h-4"></i> Yeniden Adlandır</button>
           <button data-action="move" data-id="${c.id}" class="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="folder-input" class="w-4 h-4"></i> Taşı</button>
           <div class="h-px bg-slate-100 my-1.5"></div>
@@ -724,7 +901,7 @@
 
     if (view === 'list') {
       return `
-        <div class="fade-in bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4 card-lift">
+        <div data-case-id="${c.id}" role="button" tabindex="0" class="fade-in bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4 card-lift cursor-pointer">
           <div class="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center shrink-0">
             <i data-lucide="briefcase" class="w-4 h-4 text-navy"></i>
           </div>
@@ -751,7 +928,7 @@
     }
 
     return `
-      <div class="fade-in bg-white border border-slate-200 rounded-xl p-5 card-lift">
+      <div data-case-id="${c.id}" role="button" tabindex="0" class="fade-in bg-white border border-slate-200 rounded-xl p-5 card-lift cursor-pointer">
         <div class="flex items-start justify-between">
           <div class="w-10 h-10 rounded-lg bg-navy/5 flex items-center justify-center">
             <i data-lucide="briefcase" class="w-4 h-4 text-navy"></i>
@@ -809,15 +986,35 @@
     document.querySelectorAll('[data-action="pin"]').forEach((btn) =>
       btn.addEventListener('click', (e) => { e.stopPropagation(); togglePin(btn.dataset.id); }));
     document.querySelectorAll('[data-open-case]').forEach((link) =>
-      link.addEventListener('click', () => {
-        const c = CASES.find((x) => x.id === link.dataset.openCase);
-        if (c) trackRecentCase(c.title);
-      }));
+      link.addEventListener('click', () => trackRecentCase(link.dataset.openCase)));
+
+    // Whole card is clickable to open the case — guarded so clicks on the
+    // pin button or "..." menu (and anything inside it) don't also navigate.
+    document.querySelectorAll('[data-case-id]').forEach((card) => {
+      const openCase = () => {
+        trackRecentCase(card.dataset.caseId);
+        window.location.href = `index.html?caseId=${card.dataset.caseId}`;
+      };
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('button, a, [data-menu]')) return;
+        openCase();
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.target !== card) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCase(); }
+      });
+    });
   }
 
-  function togglePin(id) {
+  async function togglePin(id) {
     const c = CASES.find((x) => x.id === id);
-    c.pinned = !c.pinned;
+    const optimisticPinned = !c.pinned;
+    try {
+      const updated = await request(`/cases/${id}/pin`, { method: 'PATCH' });
+      c.pinned = updated.pinned;
+    } catch (err) {
+      c.pinned = optimisticPinned; // backend unreachable — keep the demo pattern usable offline
+    }
     closeAllCardMenus();
     renderCases();
     renderQuickAccess();
@@ -886,20 +1083,51 @@
   }
 
   /* ---------------- Quick actions ---------------- */
-  function handleRename(id) {
+  async function handleRename(id) {
     closeAllCardMenus();
     const current = CASES.find((c) => c.id === id);
     const next = prompt('Yeni dava adı:', current.title);
-    if (next && next.trim()) {
-      current.title = next.trim();
-      renderCases();
-      showToast('Dava adı güncellendi.');
+    if (!next || !next.trim()) return;
+
+    current.title = next.trim();
+    try {
+      await request(`/cases/${id}`, { method: 'PATCH', body: { title: current.title } });
+    } catch (err) {
+      // Backend unreachable or case only exists locally — keep the local rename.
     }
+    renderCases();
+    showToast('Dava adı güncellendi.');
   }
 
-  function handleMove(id) {
+  async function handleMove(id) {
     closeAllCardMenus();
-    showToast('Taşıma özelliği yakında eklenecek.', 'info');
+    const current = CASES.find((c) => c.id === id);
+    if (!current) return;
+
+    // Native prompt-based picker — matches the existing handleRename()
+    // pattern (no new modal UI). value=null = Klasörsüz (unfiled); folders
+    // are matched by slug.
+    const options = [{ value: null, name: 'Klasörsüz' }, ...FOLDERS.map((f) => ({ value: f.slug, name: f.name }))];
+    const menu = options.map((f, i) => `${i + 1}. ${f.name}`).join('\n');
+    const choice = prompt(`"${current.title}" davasını hangi klasöre taşımak istersiniz?\n\n${menu}`);
+    if (choice === null) return;
+
+    const idx = parseInt(choice.trim(), 10) - 1;
+    if (Number.isNaN(idx) || idx < 0 || idx >= options.length) {
+      showToast('Geçersiz seçim.', 'error');
+      return;
+    }
+    const targetFolder = options[idx].value;
+
+    try {
+      const updated = await request(`/cases/${id}/folder`, { method: 'PATCH', body: { folder: targetFolder } });
+      current.folder = updated.folder;
+      renderFolders();
+      renderCases();
+      showToast(`Dava "${options[idx].name}" klasörüne taşındı.`, 'success');
+    } catch (err) {
+      showToast(err.message || 'Taşıma başarısız oldu.', 'error');
+    }
   }
 
   let pendingDeleteId = null;
@@ -917,7 +1145,12 @@
   }
   document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
   document.getElementById('deleteModal').addEventListener('click', (e) => { if (e.target.id === 'deleteModal') closeDeleteModal(); });
-  document.getElementById('confirmDelete').addEventListener('click', () => {
+  document.getElementById('confirmDelete').addEventListener('click', async () => {
+    try {
+      await request(`/cases/${pendingDeleteId}`, { method: 'DELETE' });
+    } catch (err) {
+      // Backend unreachable or case only exists locally — still remove it locally below.
+    }
     CASES = CASES.filter((c) => c.id !== pendingDeleteId);
     closeDeleteModal();
     renderFolders();
@@ -931,21 +1164,34 @@
   document.getElementById('newCaseBtn').addEventListener('click', () => openModal(newCaseModal));
   document.getElementById('cancelNewCase').addEventListener('click', () => closeModal(newCaseModal));
   newCaseModal.addEventListener('click', (e) => { if (e.target === newCaseModal) closeModal(newCaseModal); });
-  document.getElementById('newCaseForm').addEventListener('submit', (e) => {
+  document.getElementById('newCaseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target));
-    CASES.unshift({
-      id: String(Date.now()),
-      title: data.title,
-      client: data.client || '—',
-      caseNumber: `2026/${Math.floor(100 + Math.random() * 800)}`,
-      status: 'devam',
-      folder: data.folder,
-      lastActivity: 'az önce',
-      pdfCount: 0,
-      aiStatus: 'bekliyor',
-      risk: 'dusuk',
-    });
+
+    let newCase;
+    try {
+      const created = await request('/cases', {
+        method: 'POST',
+        body: { title: data.title, client: data.client || null, folder: data.folder },
+      });
+      newCase = mapBackendCase(created);
+    } catch (err) {
+      newCase = {
+        id: String(Date.now()),
+        title: data.title,
+        client: data.client || '—',
+        caseNumber: `2026/${Math.floor(100 + Math.random() * 800)}`,
+        status: 'devam',
+        folder: data.folder,
+        lastActivity: 'az önce',
+        pdfCount: 0,
+        aiStatus: 'bekliyor',
+        risk: 'dusuk',
+        pinned: false,
+      };
+    }
+
+    CASES.unshift(newCase);
     closeModal(newCaseModal);
     e.target.reset();
     renderFolders();
@@ -953,8 +1199,18 @@
     showToast('Yeni dava oluşturuldu.');
   });
 
-  document.getElementById('newFolderBtn').addEventListener('click', () => {
-    showToast('Yeni klasör özelliği yakında eklenecek.', 'info');
+  document.getElementById('newFolderBtn').addEventListener('click', async () => {
+    const name = prompt('Yeni klasör adı:');
+    if (name === null) return;
+    if (!name.trim()) { showToast('Klasör adı boş olamaz.', 'error'); return; }
+    try {
+      await request('/folders', { method: 'POST', body: { name: name.trim() } });
+      await loadFolders();
+      renderFolders();
+      showToast(`"${name.trim()}" klasörü oluşturuldu.`, 'success');
+    } catch (err) {
+      showToast(err.message || 'Klasör oluşturulamadı.', 'error');
+    }
   });
 
   /* ---------------- Filters wiring ---------------- */
@@ -999,10 +1255,15 @@
   document.getElementById('listViewBtn').addEventListener('click', () => setView('list'));
 
   /* ---------------- Init ---------------- */
-  renderFolders();
-  renderCases();
-  renderQuickAccess();
-  lucide.createIcons();
+  (async () => {
+    await Promise.all([loadCases(), loadFolders()]);
+    renderFolders();
+    renderCases();
+    renderQuickAccess();
+    lucide.createIcons();
+  })();
+  loadIdentity();
+  loadNotifications();
 </script>
 </body>
 </html>

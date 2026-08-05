@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Geçmiş · LexAssist AI</title>
+<meta name="description" content="LexAssist AI · Dava, yükleme ve yapay zekâ işlemlerinizin geçmişi" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Ctext x='16' y='22' font-family='Arial, sans-serif' font-weight='700' font-size='17' fill='%23d4af37' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#0f172a', light: '#1e3a8a' },
+          gold: { DEFAULT: '#d4af37', light: '#f4e5b2' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root { --navy: #0f172a; --navy-light: #1e3a8a; --gold: #d4af37; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .card-lift { transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }
+  .card-lift:hover { box-shadow: 0 12px 24px -8px rgba(15,23,42,0.12); transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn .35s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pop-in { animation: popIn .16s ease both; transform-origin: top right; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-in { animation: modalIn .22s ease both; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.97) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .toast-in { animation: toastIn .2s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sidebar-drawer { transition: transform .25s ease; }
+
+  .spin { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .timeline-line { position: absolute; left: 19px; top: 40px; bottom: -8px; width: 2px; background: #e2e8f0; }
+  .timeline-item:last-child .timeline-line { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .fade-in, .pop-in, .modal-in, .toast-in, .sidebar-drawer, .spin {
+      animation: none !important; transition: none !important;
+    }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-navy font-sans">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <aside id="sidebar" class="sidebar-drawer fixed lg:static inset-y-0 left-0 z-40 w-64 bg-navy text-white flex flex-col shrink-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center gap-2.5 px-6 py-6 border-b border-white/10">
+      <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center font-bold text-navy">L</div>
+      <span class="text-lg font-semibold tracking-tight">LexAssist <span class="text-gold">AI</span></span>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+      </a>
+      <a href="my-cases.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="briefcase" class="w-4 h-4"></i> Davalarım
+      </a>
+      <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
+      </a>
+      <a href="gecmis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
+        <i data-lucide="history" class="w-4 h-4 text-gold"></i> Geçmiş
+      </a>
+      <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+        <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-white/10">
+      <div class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
+        <p class="text-sm font-semibold text-white">Kurumunuzu Premium'a yükseltin</p>
+        <ul class="mt-3 space-y-1.5 text-xs text-slate-300">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Sınırsız dava ve PDF yükleme</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
+        </ul>
+        <button id="sidebarUpgradeBtn" class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 px-1 mt-4">
+        <div id="sidebarAvatar" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">—</div>
+        <div class="flex-1 min-w-0">
+          <p id="sidebarUserName" class="text-sm font-medium truncate">—</p>
+          <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- ---- Topbar ---- -->
+    <header class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6">
+      <button id="menuToggle" class="lg:hidden text-slate-500 hover:text-navy transition" aria-label="Menüyü aç">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <div class="hidden lg:flex items-center gap-2 shrink-0">
+        <div class="w-7 h-7 rounded-md bg-navy flex items-center justify-center font-bold text-gold text-xs">L</div>
+        <span class="text-sm font-semibold text-navy">Geçmiş</span>
+      </div>
+
+      <div class="hidden md:block h-6 w-px bg-slate-200 shrink-0"></div>
+
+      <button id="openPaletteBtn" class="flex-1 max-w-md flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left">
+        <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+        <span class="flex-1 truncate">Dava ara veya sayfaya git...</span>
+        <kbd class="hidden sm:inline text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">⌘K</kbd>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <div class="relative shrink-0">
+        <button id="notifBtn" class="relative text-slate-500 hover:text-navy transition" aria-label="Bildirimler">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span id="notifDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+        </button>
+        <div id="notifMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-2 z-50">
+          <div class="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
+            <span class="text-sm font-bold text-navy">Bildirimler</span>
+            <button id="notifMarkAllBtn" class="text-xs font-semibold text-navy hover:text-gold transition">Tümünü okundu işaretle</button>
+          </div>
+          <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+          <div id="notifEmpty" class="hidden text-center py-8 text-sm text-slate-400">Bildirim yok.</div>
+        </div>
+      </div>
+
+      <div class="relative shrink-0">
+        <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
+          <div id="profileAvatar" class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">—</div>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
+        </button>
+        <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
+          <a href="profile.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="settings.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <div class="h-px bg-slate-100 my-1.5"></div>
+          <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ---- Scrollable content ---- -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        <!-- Page header -->
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-navy tracking-tight">Geçmiş</h1>
+            <p class="text-sm text-slate-500 mt-1">Dava, yükleme ve yapay zekâ işlemlerinizin kronolojik kaydı.</p>
+          </div>
+          <button id="refreshBtn" class="hidden sm:flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-navy border border-slate-200 hover:border-slate-300 rounded-lg px-3.5 py-2 transition shrink-0">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Yenile
+          </button>
+        </div>
+
+        <!-- Filter chips -->
+        <div id="filterChips" class="flex flex-wrap gap-2"></div>
+
+        <!-- Loading state -->
+        <div id="loadingState" class="flex flex-col items-center justify-center text-center py-20">
+          <i data-lucide="loader-circle" class="w-6 h-6 text-slate-400 spin"></i>
+          <p class="text-sm text-slate-400 mt-3">Geçmiş yükleniyor...</p>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timelineWrap" class="hidden bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+          <ul id="timelineList" class="space-y-6"></ul>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center text-center py-16 bg-white border border-dashed border-slate-300 rounded-2xl">
+          <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+            <i data-lucide="history" class="w-6 h-6 text-slate-400"></i>
+          </div>
+          <p class="font-semibold text-navy" id="emptyStateTitle">Henüz bir işlem geçmişiniz yok</p>
+          <p class="text-sm text-slate-400 mt-1 max-w-sm">Dava oluşturma, PDF yükleme ve yapay zekâ işlemleriniz burada listelenecek.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======================= Command palette (⌘K) ======================= -->
+<div id="commandPalette" class="hidden fixed inset-0 bg-navy/40 backdrop-blur-sm items-start justify-center z-[70] px-4 pt-24">
+  <div class="modal-in bg-white rounded-2xl shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)] w-full max-w-lg overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      <input id="paletteInput" type="text" placeholder="Dava ara veya sayfaya git..." autocomplete="off" class="flex-1 text-sm focus:outline-none" />
+      <kbd class="text-[10px] font-semibold text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 shrink-0">ESC</kbd>
+    </div>
+    <div id="paletteResults" class="max-h-80 overflow-y-auto py-2"></div>
+  </div>
+</div>
+
+<!-- ======================= Toast container ======================= -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2.5"></div>
+
+<script type="module">
+  import { TOKEN_KEY } from './js/config/env.js';
+  import { request, clearSession } from './js/api/http.js';
+  import { escapeHtml } from './js/utils/sanitize.js';
+
+  /* =========================================================
+     Auth guard — redirect to login if no session exists.
+  ========================================================= */
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = 'login.html';
+  }
+
+  function logout() {
+    clearSession();
+    window.location.href = 'login.html';
+  }
+
+  /* =========================================================
+     Activity type metadata
+  ========================================================= */
+  const TYPE_META = {
+    case_created: { icon: 'briefcase', className: 'bg-navy/5 text-navy', label: 'Dava' },
+    case_renamed: { icon: 'pencil', className: 'bg-navy/5 text-navy', label: 'Dava' },
+    case_deleted: { icon: 'trash-2', className: 'bg-red-50 text-red-600', label: 'Dava' },
+    upload_created: { icon: 'upload-cloud', className: 'bg-blue-50 text-blue-600', label: 'Yükleme' },
+    ai_chat: { icon: 'message-circle', className: 'bg-gold/10 text-gold', label: 'Yapay Zekâ' },
+    ai_summary: { icon: 'file-text', className: 'bg-gold/10 text-gold', label: 'Yapay Zekâ' },
+    ai_risks: { icon: 'shield-alert', className: 'bg-gold/10 text-gold', label: 'Yapay Zekâ' },
+    ai_draft: { icon: 'file-signature', className: 'bg-gold/10 text-gold', label: 'Yapay Zekâ' },
+  };
+
+  const FILTERS = [
+    { key: 'all', label: 'Tümü' },
+    { key: 'case', label: 'Dava', types: ['case_created', 'case_renamed', 'case_deleted'] },
+    { key: 'upload', label: 'Yükleme', types: ['upload_created'] },
+    { key: 'ai', label: 'Yapay Zekâ', types: ['ai_chat', 'ai_summary', 'ai_risks', 'ai_draft'] },
+  ];
+
+  const state = {
+    activity: [],
+    filter: 'all',
+    loadFailed: false,
+  };
+
+  function formatRelative(isoString) {
+    const date = new Date(isoString);
+    const diffMs = Date.now() - date.getTime();
+    const diffMin = Math.round(diffMs / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    const diffDay = Math.round(diffHour / 24);
+    if (diffDay < 7) return `${diffDay} gün önce`;
+    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  async function loadActivity() {
+    try {
+      const activity = await request('/activity?limit=100');
+      state.activity = activity;
+      state.loadFailed = false;
+    } catch (err) {
+      state.activity = []; // backend unreachable — show the empty state, not fake activity
+      state.loadFailed = true;
+    }
+  }
+
+  /* =========================================================
+     Sidebar (mobile drawer) + profile dropdown — shared shell
+  ========================================================= */
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  });
+  sidebarBackdrop.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  });
+
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  profileBtn.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => profileMenu.classList.add('hidden'));
+
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+  document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  /* =========================================================
+     Identity + plan — real /auth/me
+  ========================================================= */
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+  async function loadIdentity() {
+    let user;
+    try {
+      user = await request('/auth/me');
+    } catch (err) {
+      user = { fullName: '—', plan: 'free' };
+    }
+    document.getElementById('sidebarUserName').textContent = user.fullName;
+    document.getElementById('sidebarAvatar').textContent = initials(user.fullName);
+    document.getElementById('profileAvatar').textContent = initials(user.fullName);
+  }
+
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', async () => {
+    try {
+      await request('/billing/upgrade', { method: 'POST' });
+      showToast('Premium plana yükseltildiniz!', 'success');
+      loadNotifications();
+    } catch (err) {
+      showToast(err.message || 'Yükseltme başarısız oldu.', 'error');
+    }
+  });
+
+  /* =========================================================
+     Notifications
+  ========================================================= */
+  const NOTIF_ICON = { upload_completed: 'upload-cloud', analysis_completed: 'sparkles', system: 'info', security: 'shield-alert' };
+  function formatNotifRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+  function renderNotifications(items) {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('notifEmpty');
+    document.getElementById('notifDot').classList.toggle('hidden', items.every((n) => n.read));
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = items.map((n) => `
+      <button data-id="${n.id}" class="notif-item w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition ${n.read ? '' : 'bg-navy/[0.03]'}">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="${NOTIF_ICON[n.type] || 'bell'}" class="w-4 h-4 text-navy"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${escapeHtml(n.title)}</p>
+          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(n.message)}</p>
+          <p class="text-[11px] text-slate-400 mt-1">${formatNotifRelative(n.createdAt)}</p>
+        </div>
+        ${n.read ? '' : '<span class="w-2 h-2 rounded-full bg-gold shrink-0 mt-1.5"></span>'}
+      </button>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.notif-item').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try { await request(`/notifications/${btn.dataset.id}/read`, { method: 'POST' }); } catch (err) { /* no-op */ }
+        loadNotifications();
+      });
+    });
+  }
+  async function loadNotifications() {
+    try {
+      renderNotifications(await request('/notifications?limit=15'));
+    } catch (err) {
+      renderNotifications([]);
+    }
+  }
+  const notifBtn = document.getElementById('notifBtn');
+  const notifMenu = document.getElementById('notifMenu');
+  notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => notifMenu.classList.add('hidden'));
+  document.getElementById('notifMarkAllBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try { await request('/notifications/read-all', { method: 'POST' }); } catch (err) { /* no-op */ }
+    loadNotifications();
+  });
+
+  /* ---------------- Command palette (⌘K) ---------------- */
+  const PALETTE_NAV = [
+    { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
+    { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
+    { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+    { label: 'Geçmiş', icon: 'history', href: 'gecmis.html' },
+    { label: 'Ayarlar', icon: 'settings', href: 'settings.html' },
+  ];
+
+  const palette = document.getElementById('commandPalette');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+
+  function openPalette() {
+    palette.classList.remove('hidden');
+    palette.classList.add('flex');
+    paletteInput.value = '';
+    renderPaletteResults('');
+    setTimeout(() => paletteInput.focus(), 10);
+  }
+  function closePalette() {
+    palette.classList.add('hidden');
+    palette.classList.remove('flex');
+  }
+  function paletteSection(title, items) {
+    if (items.length === 0) return '';
+    return `<p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">${title}</p>` +
+      items.map((i) => `
+        <button data-href="${i.href}" class="palette-item w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition text-left">
+          <i data-lucide="${i.icon}" class="w-4 h-4 text-slate-400"></i> ${i.label}
+        </button>
+      `).join('');
+  }
+  function renderPaletteResults(query) {
+    const q = query.trim().toLowerCase();
+    const navMatches = PALETTE_NAV.filter((i) => i.label.toLowerCase().includes(q));
+    const html = paletteSection('Sayfalar', navMatches);
+    paletteResults.innerHTML = html || `<p class="px-4 py-6 text-sm text-slate-400 text-center">Sonuç bulunamadı.</p>`;
+    lucide.createIcons();
+    paletteResults.querySelectorAll('.palette-item').forEach((btn) => {
+      btn.addEventListener('click', () => { window.location.href = btn.dataset.href; });
+    });
+  }
+  paletteInput.addEventListener('input', () => renderPaletteResults(paletteInput.value));
+  document.getElementById('openPaletteBtn').addEventListener('click', openPalette);
+  palette.addEventListener('click', (e) => { if (e.target === palette) closePalette(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
+      closePalette();
+    }
+  });
+
+  /* =========================================================
+     Toasts
+  ========================================================= */
+  function showToast(message, variant = 'success', action = null) {
+    const container = document.getElementById('toastContainer');
+    const icon = variant === 'success' ? 'check-circle-2' : variant === 'error' ? 'alert-circle' : 'info';
+    const accent = variant === 'success' ? 'text-emerald-600' : variant === 'error' ? 'text-red-600' : 'text-navy';
+    const actionHTML = action ? `<a href="${action.href}" class="font-semibold text-navy hover:text-gold transition shrink-0">${action.label}</a>` : '';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-in flex items-center gap-2.5 bg-white border border-slate-200 shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] rounded-xl px-4 py-3 text-sm text-navy min-w-[240px] max-w-sm';
+    toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${accent} shrink-0"></i><span class="flex-1">${escapeHtml(message)}</span>${actionHTML}`;
+    container.appendChild(toast);
+    lucide.createIcons();
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .2s ease';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+    }, action ? 6000 : 3500);
+  }
+
+  /* =========================================================
+     Filter chips
+  ========================================================= */
+  function renderFilterChips() {
+    const wrap = document.getElementById('filterChips');
+    wrap.innerHTML = FILTERS.map((f) => {
+      const active = state.filter === f.key;
+      const classes = active
+        ? 'bg-navy text-white border-navy'
+        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-navy';
+      return `<button data-filter="${f.key}" class="filter-chip text-xs font-semibold px-3.5 py-1.5 rounded-full border transition ${classes}">${f.label}</button>`;
+    }).join('');
+    wrap.querySelectorAll('.filter-chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.filter = btn.dataset.filter;
+        renderFilterChips();
+        renderTimeline();
+      });
+    });
+  }
+
+  function filteredActivity() {
+    if (state.filter === 'all') return state.activity;
+    const filter = FILTERS.find((f) => f.key === state.filter);
+    return state.activity.filter((entry) => filter.types.includes(entry.type));
+  }
+
+  /* =========================================================
+     Timeline render
+  ========================================================= */
+  function renderTimeline() {
+    const loadingState = document.getElementById('loadingState');
+    const timelineWrap = document.getElementById('timelineWrap');
+    const emptyState = document.getElementById('emptyState');
+    const list = document.getElementById('timelineList');
+
+    loadingState.classList.add('hidden');
+
+    const items = filteredActivity();
+
+    if (items.length === 0) {
+      timelineWrap.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+      emptyState.classList.add('flex');
+      document.getElementById('emptyStateTitle').textContent =
+        state.filter === 'all' ? 'Henüz bir işlem geçmişiniz yok' : 'Bu kategoride işlem bulunamadı';
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    emptyState.classList.remove('flex');
+    timelineWrap.classList.remove('hidden');
+
+    list.innerHTML = items.map((entry) => {
+      const meta = TYPE_META[entry.type] || { icon: 'circle', className: 'bg-slate-100 text-slate-500', label: 'İşlem' };
+      const safeDescription = escapeHtml(entry.description);
+      return `
+        <li class="timeline-item relative flex items-start gap-4">
+          <div class="timeline-line"></div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${meta.className}">
+            <i data-lucide="${meta.icon}" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 min-w-0 pt-1.5">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-medium text-navy">${safeDescription}</p>
+              <span class="text-xs text-slate-400 shrink-0">${formatRelative(entry.createdAt)}</span>
+            </div>
+            <span class="inline-block mt-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">${meta.label}</span>
+          </div>
+        </li>
+      `;
+    }).join('');
+
+    lucide.createIcons();
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', async () => {
+    await loadActivity();
+    renderTimeline();
+    if (!state.loadFailed) showToast('Geçmiş güncellendi.', 'success');
+  });
+
+  /* =========================================================
+     Init
+  ========================================================= */
+  (async () => {
+    renderFilterChips();
+    await loadActivity();
+    renderTimeline();
+    lucide.createIcons();
+  })();
+  loadIdentity();
+  loadNotifications();
+</script>
+</body>
+</html>

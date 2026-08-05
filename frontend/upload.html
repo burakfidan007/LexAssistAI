@@ -106,13 +106,10 @@
       <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white transition text-sm font-semibold">
         <i data-lucide="upload-cloud" class="w-4 h-4 text-gold"></i> PDF Yükle
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
-        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="gecmis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
       </a>
     </nav>
@@ -125,15 +122,15 @@
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Öncelikli AI analiz kuyruğu</li>
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold shrink-0"></i> Çoklu kullanıcı erişimi</li>
         </ul>
-        <button class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
+        <button id="sidebarUpgradeBtn" class="w-full mt-4 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
           <i data-lucide="sparkles" class="w-4 h-4"></i> Premium'a Yükselt
         </button>
       </div>
 
       <div class="flex items-center gap-3 px-1 mt-4">
-        <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+        <div id="sidebarAvatar" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">—</div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
+          <p id="sidebarUserName" class="text-sm font-medium truncate">—</p>
           <button id="sidebarLogoutBtn" class="text-xs text-slate-400 hover:text-gold transition">Çıkış Yap</button>
         </div>
       </div>
@@ -164,19 +161,29 @@
 
       <div class="flex-1"></div>
 
-      <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
-        <i data-lucide="bell" class="w-5 h-5"></i>
-        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
-      </button>
+      <div class="relative shrink-0">
+        <button id="notifBtn" class="relative text-slate-500 hover:text-navy transition" aria-label="Bildirimler">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span id="notifDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+        </button>
+        <div id="notifMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-2 z-50">
+          <div class="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
+            <span class="text-sm font-bold text-navy">Bildirimler</span>
+            <button id="notifMarkAllBtn" class="text-xs font-semibold text-navy hover:text-gold transition">Tümünü okundu işaretle</button>
+          </div>
+          <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+          <div id="notifEmpty" class="hidden text-center py-8 text-sm text-slate-400">Bildirim yok.</div>
+        </div>
+      </div>
 
       <div class="relative shrink-0">
         <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
-          <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+          <div id="profileAvatar" class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">—</div>
           <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
         </button>
         <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
-          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
-          <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+          <a href="profile.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+          <a href="settings.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
           <div class="h-px bg-slate-100 my-1.5"></div>
           <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
         </div>
@@ -424,6 +431,11 @@
 
   const FREE_TIER_LIMIT = FREE_TIER_UPLOAD_LIMIT;
 
+  // Present when arriving from a specific case (e.g. My Cases → "PDF
+  // Yükle") — tags the upload to that case so the Dashboard resolves it
+  // as that case's PDF instead of it staying unlinked.
+  const linkedCaseId = new URLSearchParams(window.location.search).get('caseId');
+
   const STATUS_META = {
     bekliyor: { label: 'Bekliyor', icon: 'clock', className: 'text-slate-500' },
     yukleniyor: { label: 'Yükleniyor', icon: 'loader-circle', className: 'text-navy', spin: true },
@@ -444,13 +456,40 @@
      State
   ========================================================= */
   const state = {
-    usedCount: 2,
-    history: [
-      { id: 'h1', fileName: 'yilmaz_sozlesme.pdf', caseName: 'Yılmaz vs. ABC Ltd.', date: '14 Tem 2026', status: 'tamamlandi', size: '2.4 MB' },
-      { id: 'h2', fileName: 'kurtulus_is_sozlesmesi.pdf', caseName: 'Kurtuluş İş Davası', date: '12 Tem 2026', status: 'tamamlandi', size: '1.1 MB' },
-      { id: 'h3', fileName: 'demir_kira_sozlesmesi.pdf', caseName: 'Demir Kira Sözleşmesi İhtilafı', date: '9 Tem 2026', status: 'basarisiz', size: '4.7 MB' },
-    ],
+    usedCount: 0,
+    history: [],
   };
+
+  function formatShortDate(isoString) {
+    return new Date(isoString).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function mapBackendUpload(u) {
+    return {
+      id: u.id,
+      fileName: u.fileName,
+      caseName: u.caseTitle || '—',
+      date: formatShortDate(u.createdAt),
+      status: u.status,
+      size: formatFileSize(u.size),
+    };
+  }
+
+  async function loadUsageAndHistory() {
+    try {
+      const usage = await request('/uploads/usage');
+      state.usedCount = usage.used;
+    } catch (err) {
+      // backend unreachable — leave usedCount at 0 rather than a fake value
+    }
+
+    try {
+      const history = await request('/uploads/history');
+      state.history = history.map(mapBackendUpload);
+    } catch (err) {
+      state.history = []; // backend unreachable — show the empty state, not fake history
+    }
+  }
 
   /* =========================================================
      Sidebar (mobile drawer) + profile dropdown — shared shell
@@ -474,16 +513,99 @@
   document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
   document.getElementById('profileLogoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
 
+  /* =========================================================
+     Identity + plan — real /auth/me
+  ========================================================= */
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+  async function loadIdentity() {
+    let user;
+    try {
+      user = await request('/auth/me');
+    } catch (err) {
+      user = { fullName: '—', plan: 'free' };
+    }
+    document.getElementById('sidebarUserName').textContent = user.fullName;
+    document.getElementById('sidebarAvatar').textContent = initials(user.fullName);
+    document.getElementById('profileAvatar').textContent = initials(user.fullName);
+  }
+
+  /* =========================================================
+     Notifications
+  ========================================================= */
+  const NOTIF_ICON = { upload_completed: 'upload-cloud', analysis_completed: 'sparkles', system: 'info', security: 'shield-alert' };
+  function formatNotifRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+  function renderNotifications(items) {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('notifEmpty');
+    document.getElementById('notifDot').classList.toggle('hidden', items.every((n) => n.read));
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = items.map((n) => `
+      <button data-id="${n.id}" class="notif-item w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition ${n.read ? '' : 'bg-navy/[0.03]'}">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="${NOTIF_ICON[n.type] || 'bell'}" class="w-4 h-4 text-navy"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${escapeHtml(n.title)}</p>
+          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(n.message)}</p>
+          <p class="text-[11px] text-slate-400 mt-1">${formatNotifRelative(n.createdAt)}</p>
+        </div>
+        ${n.read ? '' : '<span class="w-2 h-2 rounded-full bg-gold shrink-0 mt-1.5"></span>'}
+      </button>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.notif-item').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try { await request(`/notifications/${btn.dataset.id}/read`, { method: 'POST' }); } catch (err) { /* no-op */ }
+        loadNotifications();
+      });
+    });
+  }
+  async function loadNotifications() {
+    try {
+      renderNotifications(await request('/notifications?limit=15'));
+    } catch (err) {
+      renderNotifications([]);
+    }
+  }
+  const notifBtn = document.getElementById('notifBtn');
+  const notifMenu = document.getElementById('notifMenu');
+  notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => notifMenu.classList.add('hidden'));
+  document.getElementById('notifMarkAllBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try { await request('/notifications/read-all', { method: 'POST' }); } catch (err) { /* no-op */ }
+    loadNotifications();
+  });
+
   /* ---------------- Command palette (⌘K) ---------------- */
   const PALETTE_NAV = [
     { label: 'Dashboard', icon: 'layout-dashboard', href: 'index.html' },
     { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
     { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
+    { label: 'Geçmiş', icon: 'history', href: 'gecmis.html' },
+    { label: 'Ayarlar', icon: 'settings', href: 'settings.html' },
   ];
-  const PALETTE_CASES = [
-    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
-    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
-  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+  let PALETTE_CASES = [];
+  async function loadPaletteCases() {
+    try {
+      const cases = await request('/cases');
+      PALETTE_CASES = cases.map((c) => ({ label: c.title, icon: 'briefcase', href: `index.html?caseId=${c.id}` }));
+    } catch (err) {
+      PALETTE_CASES = [];
+    }
+  }
 
   const palette = document.getElementById('commandPalette');
   const paletteInput = document.getElementById('paletteInput');
@@ -715,13 +837,17 @@
   async function uploadThenAnalyze(file) {
     setStatus('yukleniyor');
 
-    // Attempt real backend upload; falls back to local simulation until
-    // the /api/uploads endpoint exists (see docker-compose.yml backend service).
     const formData = new FormData();
     formData.append('file', file);
-    request('/uploads', { method: 'POST', body: formData }).catch(() => {});
+    if (linkedCaseId) formData.append('case_id', linkedCaseId);
 
-    await animateProgress(0, 100, 1600);
+    // Run the real upload and the progress animation together so a fast
+    // backend response doesn't cut the animation short; falls back to a
+    // locally-simulated history entry if the backend is unreachable.
+    const [uploadResult] = await Promise.all([
+      request('/uploads', { method: 'POST', body: formData }).catch(() => null),
+      animateProgress(0, 100, 1600),
+    ]);
 
     setStatus('isleniyor');
     aiProcessingCard.classList.remove('hidden');
@@ -732,13 +858,26 @@
     }
     renderAiSteps(AI_STEPS.length);
 
-    completeUpload(file);
+    completeUpload(file, uploadResult);
   }
 
-  function completeUpload(file) {
+  function completeUpload(file, uploadResult) {
     setStatus('tamamlandi');
     state.usedCount += 1;
     renderUsage();
+
+    const targetCaseId = linkedCaseId || uploadResult?.caseId || null;
+    const openCaseHref = targetCaseId ? `index.html?caseId=${targetCaseId}` : 'index.html';
+    document.getElementById('openCaseAction').href = openCaseHref;
+
+    if (uploadResult) {
+      state.history.unshift(mapBackendUpload(uploadResult));
+      renderHistory();
+      document.getElementById('openCaseAction').classList.remove('hidden');
+      showToast('Yükleme tamamlandı.', 'success');
+      setTimeout(() => showToast('Analiz tamamlandı — sonuçlar davanızda hazır.', 'success', { label: 'Dosyayı Aç', href: openCaseHref }), 500);
+      return;
+    }
 
     state.history.unshift({
       id: String(Date.now()),
@@ -753,7 +892,7 @@
     document.getElementById('openCaseAction').classList.remove('hidden');
 
     showToast('Yükleme tamamlandı.', 'success');
-    setTimeout(() => showToast('Analiz tamamlandı — sonuçlar davanızda hazır.', 'success', { label: 'Dosyayı Aç', href: 'index.html' }), 500);
+    setTimeout(() => showToast('Analiz tamamlandı — sonuçlar davanızda hazır.', 'success', { label: 'Dosyayı Aç', href: openCaseHref }), 500);
   }
 
   function resetUploadCard() {
@@ -791,9 +930,17 @@
     document.getElementById('usageBar').style.width = `${(used / FREE_TIER_LIMIT) * 100}%`;
   }
 
-  document.getElementById('upgradeBtn').addEventListener('click', () => {
-    showToast('Premium yükseltme akışı yakında eklenecek.', 'info');
-  });
+  async function upgradeToPremium() {
+    try {
+      await request('/billing/upgrade', { method: 'POST' });
+      showToast('Premium plana yükseltildiniz!', 'success');
+      loadNotifications();
+    } catch (err) {
+      showToast(err.message || 'Yükseltme başarısız oldu.', 'error');
+    }
+  }
+  document.getElementById('upgradeBtn').addEventListener('click', upgradeToPremium);
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', upgradeToPremium);
 
   /* =========================================================
      Upload history — table (desktop) + cards (mobile)
@@ -915,9 +1062,15 @@
   /* =========================================================
      Init
   ========================================================= */
-  renderUsage();
-  renderHistory();
-  lucide.createIcons();
+  (async () => {
+    await loadUsageAndHistory();
+    renderUsage();
+    renderHistory();
+    lucide.createIcons();
+  })();
+  loadIdentity();
+  loadNotifications();
+  loadPaletteCases();
 </script>
 </body>
 </html>

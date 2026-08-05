@@ -13,6 +13,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -101,13 +102,10 @@
       <a href="upload.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
-        <i data-lucide="message-square" class="w-4 h-4"></i> AI Sohbet
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="gecmis.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="history" class="w-4 h-4"></i> Geçmiş
       </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
+      <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition text-sm font-medium">
         <i data-lucide="settings" class="w-4 h-4"></i> Ayarlar
       </a>
     </nav>
@@ -118,22 +116,22 @@
       <!-- User / subscription / storage -->
       <div class="rounded-xl bg-white/5 border border-white/10 p-4">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">AY</div>
+          <div id="sidebarAvatar" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold shrink-0">—</div>
           <div class="min-w-0">
-            <p class="text-sm font-medium truncate">Av. Ayşe Yılmaz</p>
-            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 bg-white/10 px-2 py-0.5 rounded-full mt-0.5">
-              <i data-lucide="circle" class="w-2 h-2 fill-current"></i> Ücretsiz Plan
+            <p id="sidebarUserName" class="text-sm font-medium truncate">—</p>
+            <span id="sidebarPlanBadge" class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 bg-white/10 px-2 py-0.5 rounded-full mt-0.5">
+              <i data-lucide="circle" class="w-2 h-2 fill-current"></i> —
             </span>
           </div>
         </div>
 
         <div class="mt-3.5">
           <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
-            <span>Depolama Alanı</span>
-            <span>2.4 GB / 5 GB</span>
+            <span>PDF Kullanımı</span>
+            <span id="sidebarUsageText">—</span>
           </div>
           <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-gold to-gold-light rounded-full" style="width: 48%"></div>
+            <div id="sidebarUsageBar" class="h-full bg-gradient-to-r from-gold to-gold-light rounded-full" style="width: 0%"></div>
           </div>
           <p class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
             <span>Ücretsiz Plan · aylık PDF limiti</span>
@@ -147,7 +145,7 @@
       </div>
 
       <!-- Premium upgrade -->
-      <div class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
+      <div id="sidebarUpgradePanel" class="rounded-xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 p-4">
         <p class="text-sm font-semibold text-white flex items-center gap-1.5"><i data-lucide="crown" class="w-3.5 h-3.5 text-gold"></i> Premium'a Yükseltin</p>
         <p class="text-xs text-slate-300 mt-2 leading-relaxed">Sınırsız analiz, öncelikli AI kuyruğu ve gelişmiş araçların kilidini açın.</p>
         <button id="sidebarUpgradeBtn" class="w-full mt-3.5 flex items-center justify-center gap-2 bg-gold hover:brightness-105 text-navy font-semibold text-sm py-2.5 rounded-lg transition">
@@ -173,13 +171,13 @@
           <nav aria-label="Breadcrumb" class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 mb-0.5">
             <a href="my-cases.html" class="hover:text-navy transition">Davalarım</a>
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <span class="text-slate-500 truncate max-w-[140px]">Yılmaz vs. ABC Ltd.</span>
+            <span id="breadcrumbCaseName" class="text-slate-500 truncate max-w-[140px]">—</span>
           </nav>
           <div class="flex items-center gap-2">
-            <h1 class="text-sm font-bold text-navy truncate max-w-[160px] sm:max-w-xs">Yılmaz vs. ABC Ltd.</h1>
-            <span class="hidden sm:inline text-xs text-slate-400">2026/114</span>
+            <h1 id="dashboardCaseTitle" class="text-sm font-bold text-navy truncate max-w-[160px] sm:max-w-xs">Dava Panosu</h1>
+            <span id="dashboardCaseNumber" class="hidden sm:inline text-xs text-slate-400"></span>
           </div>
-          <p class="hidden sm:block text-xs text-slate-400 truncate">Ayşe Yılmaz · Son analiz: 2 saat önce</p>
+          <p class="hidden sm:block text-xs text-slate-400 truncate"><span id="topbarUserName">—</span><span id="lastAnalysisWrap" class="hidden"> · Son analiz: <span id="lastAnalysisText"></span></span></p>
         </div>
 
         <button id="openPaletteBtn" class="flex-1 max-w-xs hidden md:flex items-center gap-2.5 pl-3.5 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 text-sm text-slate-400 transition text-left ml-2">
@@ -190,19 +188,29 @@
 
         <div class="flex-1"></div>
 
-        <button class="relative text-slate-500 hover:text-navy transition shrink-0" aria-label="Bildirimler">
-          <i data-lucide="bell" class="w-5 h-5"></i>
-          <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
-        </button>
+        <div class="relative shrink-0">
+          <button id="notifBtn" class="relative text-slate-500 hover:text-navy transition" aria-label="Bildirimler">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span id="notifDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gold"></span>
+          </button>
+          <div id="notifMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-2 z-50">
+            <div class="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
+              <span class="text-sm font-bold text-navy">Bildirimler</span>
+              <button id="notifMarkAllBtn" class="text-xs font-semibold text-navy hover:text-gold transition">Tümünü okundu işaretle</button>
+            </div>
+            <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+            <div id="notifEmpty" class="hidden text-center py-8 text-sm text-slate-400">Bildirim yok.</div>
+          </div>
+        </div>
 
         <div class="relative shrink-0">
           <button id="profileBtn" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 transition">
-            <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">AY</div>
+            <div id="profileAvatar" class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-xs font-semibold">—</div>
             <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block"></i>
           </button>
           <div id="profileMenu" class="hidden pop-in absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-[0_16px_32px_-12px_rgba(15,23,42,0.18)] py-1.5 z-50">
-            <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
-            <a href="#" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
+            <a href="profile.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="user" class="w-4 h-4"></i> Profil</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-navy transition"><i data-lucide="settings" class="w-4 h-4"></i> Ayarlar</a>
             <div class="h-px bg-slate-100 my-1.5"></div>
             <a href="login.html" id="profileLogoutLink" class="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 transition"><i data-lucide="log-out" class="w-4 h-4"></i> Çıkış Yap</a>
           </div>
@@ -266,9 +274,9 @@
 
           <div class="h-5 w-px bg-slate-200 mx-1"></div>
 
-          <button id="prevPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Önceki sayfa"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
-          <span id="pageLabel" class="text-xs font-semibold text-slate-500">Sayfa 1 / 42</span>
-          <button id="nextPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition" aria-label="Sonraki sayfa"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+          <button id="prevPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Önceki sayfa"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+          <span id="pageLabel" class="text-xs font-semibold text-slate-500">Sayfa – / –</span>
+          <button id="nextPageBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-navy transition disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Sonraki sayfa"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
 
           <div class="flex-1"></div>
 
@@ -282,6 +290,28 @@
             <p class="text-xs text-slate-400 text-center">PDF yükleniyor...</p>
           </div>
           <div id="pdfPages" class="hidden w-full flex flex-col items-center gap-6"></div>
+
+          <div id="pdfEmptyState" class="hidden flex-1 w-full flex flex-col items-center justify-center text-center py-16">
+            <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm">
+              <i data-lucide="file-x-2" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            <p class="font-semibold text-navy">Bu davaya ait bir PDF bulunamadı</p>
+            <p class="text-sm text-slate-400 mt-1 max-w-sm">PDF Yükle sayfasından bir dava dosyası yükleyerek görüntülemeye başlayabilirsiniz.</p>
+            <a href="upload.html" class="mt-4 inline-flex items-center gap-2 bg-navy hover:bg-navy-light text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i> PDF Yükle
+            </a>
+          </div>
+
+          <div id="pdfErrorState" class="hidden flex-1 w-full flex flex-col items-center justify-center text-center py-16">
+            <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500"></i>
+            </div>
+            <p class="font-semibold text-navy">PDF yüklenirken bir hata oluştu</p>
+            <p id="pdfErrorText" class="text-sm text-slate-400 mt-1 max-w-sm">Dosya görüntülenemedi. Lütfen tekrar deneyin.</p>
+            <button id="retryPdfBtn" class="mt-4 inline-flex items-center gap-2 border border-slate-200 hover:border-navy text-navy text-sm font-semibold px-4 py-2.5 rounded-lg transition">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Tekrar Dene
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -402,7 +432,7 @@
 <div id="toastContainer" class="fixed bottom-24 right-6 z-[60] flex flex-col gap-2.5 items-end"></div>
 
 <script type="module">
-  import { TOKEN_KEY } from './js/config/env.js';
+  import { TOKEN_KEY, API_BASE_URL } from './js/config/env.js';
   import { request, clearSession } from './js/api/http.js';
   import { escapeHtml } from './js/utils/sanitize.js';
 
@@ -419,11 +449,6 @@
     clearSession();
     window.location.href = 'login.html';
   }
-
-  /* =========================================================
-     Config
-  ========================================================= */
-  const TOTAL_PAGES = 42;
 
   /* =========================================================
      Sidebar drawer + profile dropdown — shared shell behavior
@@ -453,10 +478,15 @@
     { label: 'Davalarım', icon: 'briefcase', href: 'my-cases.html' },
     { label: 'PDF Yükle', icon: 'upload-cloud', href: 'upload.html' },
   ];
-  const PALETTE_CASES = [
-    'Yılmaz vs. ABC Ltd.', 'Kurtuluş İş Davası', 'Demir Kira Sözleşmesi İhtilafı',
-    'Aksoy Boşanma Davası', 'Şahin Ceza Davası', 'Özkan İcra Takibi',
-  ].map((label) => ({ label, icon: 'briefcase', href: 'index.html' }));
+  let PALETTE_CASES = [];
+  async function loadPaletteCases() {
+    try {
+      const cases = await request('/cases');
+      PALETTE_CASES = cases.map((c) => ({ label: c.title, icon: 'briefcase', href: `index.html?caseId=${c.id}` }));
+    } catch (err) {
+      PALETTE_CASES = [];
+    }
+  }
 
   const palette = document.getElementById('commandPalette');
   const paletteInput = document.getElementById('paletteInput');
@@ -505,7 +535,197 @@
     }
   });
 
-  document.getElementById('sidebarUpgradeBtn').addEventListener('click', () => showToast('Premium yükseltme akışı yakında eklenecek.', 'info'));
+  /* =========================================================
+     Identity + plan — populated from the real /auth/me response
+     (name, avatar initials, plan badge) across the shell.
+  ========================================================= */
+  const PLAN_LABEL = { free: 'Ücretsiz Plan', premium: 'Premium Plan' };
+
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  function renderIdentity(user) {
+    const name = user.fullName || '—';
+    document.getElementById('sidebarUserName').textContent = name;
+    document.getElementById('sidebarAvatar').textContent = initials(name);
+    document.getElementById('profileAvatar').textContent = initials(name);
+    document.getElementById('topbarUserName').textContent = name;
+
+    const planKey = user.plan || 'free';
+    const badge = document.getElementById('sidebarPlanBadge');
+    badge.innerHTML = `<i data-lucide="circle" class="w-2 h-2 fill-current"></i> ${PLAN_LABEL[planKey] || planKey}`;
+    document.getElementById('sidebarUpgradePanel').classList.toggle('hidden', planKey === 'premium');
+    lucide.createIcons();
+  }
+
+  async function loadIdentity() {
+    try {
+      const user = await request('/auth/me');
+      renderIdentity(user);
+    } catch (err) {
+      renderIdentity({ fullName: '—', plan: 'free' });
+    }
+  }
+
+  async function loadSidebarUsage() {
+    try {
+      const usage = await request('/uploads/usage');
+      const pct = usage.limit > 0 ? Math.min((usage.used / usage.limit) * 100, 100) : 0;
+      document.getElementById('sidebarUsageText').textContent = `${usage.used} / ${usage.limit}`;
+      document.getElementById('sidebarUsageBar').style.width = `${pct}%`;
+    } catch (err) {
+      // leave the zero/default state — backend unreachable
+    }
+  }
+
+  document.getElementById('sidebarUpgradeBtn').addEventListener('click', async () => {
+    try {
+      const user = await request('/billing/upgrade', { method: 'POST' });
+      renderIdentity(user);
+      showToast('Premium plana yükseltildiniz!', 'success');
+      loadNotifications();
+    } catch (err) {
+      showToast(err.message || 'Yükseltme başarısız oldu.', 'error');
+    }
+  });
+
+  /* =========================================================
+     Case context — which case this Dashboard is showing.
+
+     Resolution order: ?caseId= in the URL, then the last case remembered
+     in localStorage, then (brand-new session) the user's most recent
+     case. Whichever wins gets written back to both the URL (via
+     replaceState, no reload) and localStorage, so a plain refresh always
+     has an explicit ?caseId= to re-resolve from — this is what makes the
+     selection survive a reload instead of silently falling back to
+     "whatever PDF was uploaded most recently" (the bug being fixed here).
+  ========================================================= */
+  const SELECTED_CASE_KEY = 'lexassist_selected_case';
+  let activeCase = null;
+
+  function trackRecentCase(id) {
+    let recent = JSON.parse(localStorage.getItem('lexassist_recent_cases') || '[]');
+    recent = recent.filter((x) => x !== id);
+    recent.unshift(id);
+    localStorage.setItem('lexassist_recent_cases', JSON.stringify(recent.slice(0, 5)));
+  }
+
+  function renderCaseHeader(c) {
+    document.getElementById('breadcrumbCaseName').textContent = c.title;
+    document.getElementById('dashboardCaseTitle').textContent = c.title;
+    document.getElementById('dashboardCaseNumber').textContent = c.caseNumber;
+  }
+
+  async function loadCaseContext() {
+    let caseId = new URLSearchParams(window.location.search).get('caseId')
+      || localStorage.getItem(SELECTED_CASE_KEY);
+
+    if (!caseId) {
+      try {
+        const cases = await request('/cases');
+        caseId = cases[0]?.id || null;
+      } catch (err) {
+        caseId = null;
+      }
+    }
+
+    if (caseId) {
+      try {
+        activeCase = await request(`/cases/${caseId}`);
+      } catch (err) {
+        activeCase = null; // case may have been deleted, or backend unreachable
+      }
+    }
+
+    if (activeCase) {
+      localStorage.setItem(SELECTED_CASE_KEY, activeCase.id);
+      trackRecentCase(activeCase.id);
+
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('caseId') !== activeCase.id) {
+        url.searchParams.set('caseId', activeCase.id);
+        window.history.replaceState(null, '', url);
+      }
+
+      renderCaseHeader(activeCase);
+    } else {
+      // No case selected (fresh account or PDF uploaded without a case) —
+      // replace the static demo placeholder in the header with a neutral
+      // label so nothing misleading is shown during the demo.
+      document.getElementById('breadcrumbCaseName').textContent = 'Genel';
+      document.getElementById('dashboardCaseTitle').textContent = 'Dava Panosu';
+      document.getElementById('dashboardCaseNumber').textContent = '';
+    }
+
+    // Always resolve a PDF to work against — case-scoped when a case is
+    // active, otherwise the user's most recent upload — so the AI panel and
+    // chat work even for a user who has uploaded a PDF but has no case yet.
+    activeUploadId = await resolveActiveUploadId();
+  }
+
+  /* =========================================================
+     Notifications
+  ========================================================= */
+  const NOTIF_ICON = { upload_completed: 'upload-cloud', analysis_completed: 'sparkles', system: 'info', security: 'shield-alert' };
+
+  function formatNotifRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+
+  function renderNotifications(items) {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('notifEmpty');
+    document.getElementById('notifDot').classList.toggle('hidden', items.every((n) => n.read));
+
+    if (items.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = items.map((n) => `
+      <button data-id="${n.id}" class="notif-item w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-slate-50 transition ${n.read ? '' : 'bg-navy/[0.03]'}">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="${NOTIF_ICON[n.type] || 'bell'}" class="w-4 h-4 text-navy"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${escapeHtml(n.title)}</p>
+          <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(n.message)}</p>
+          <p class="text-[11px] text-slate-400 mt-1">${formatNotifRelative(n.createdAt)}</p>
+        </div>
+        ${n.read ? '' : '<span class="w-2 h-2 rounded-full bg-gold shrink-0 mt-1.5"></span>'}
+      </button>
+    `).join('');
+    lucide.createIcons();
+    list.querySelectorAll('.notif-item').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try { await request(`/notifications/${btn.dataset.id}/read`, { method: 'POST' }); } catch (err) { /* no-op */ }
+        loadNotifications();
+      });
+    });
+  }
+
+  async function loadNotifications() {
+    try {
+      renderNotifications(await request('/notifications?limit=15'));
+    } catch (err) {
+      renderNotifications([]);
+    }
+  }
+
+  const notifBtn = document.getElementById('notifBtn');
+  const notifMenu = document.getElementById('notifMenu');
+  notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifMenu.classList.toggle('hidden'); });
+  document.addEventListener('click', () => notifMenu.classList.add('hidden'));
+  document.getElementById('notifMarkAllBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try { await request('/notifications/read-all', { method: 'POST' }); } catch (err) { /* no-op */ }
+    loadNotifications();
+  });
 
   /* =========================================================
      Toasts — success / warning / error / info
@@ -560,46 +780,195 @@
   tabPdfBtn.addEventListener('click', () => setDashboardTab('pdf'));
 
   /* =========================================================
-     PDF viewer — zoom / page nav / fullscreen / fake pages
+     PDF viewer — real PDF.js rendering, zoom / page nav / fullscreen
   ========================================================= */
-  let zoomPct = 100;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const pdfScrollArea = document.getElementById('pdfScrollArea');
+  const pdfSkeletonEl = document.getElementById('pdfSkeleton');
+  const pdfPagesEl = document.getElementById('pdfPages');
+  const pdfEmptyStateEl = document.getElementById('pdfEmptyState');
+  const pdfErrorStateEl = document.getElementById('pdfErrorState');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const fitWidthBtn = document.getElementById('fitWidthBtn');
+  const prevPageBtn = document.getElementById('prevPageBtn');
+  const nextPageBtn = document.getElementById('nextPageBtn');
+
+  let pdfDoc = null;
+  let activeUploadId = null;
   let currentPage = 1;
+  let totalPages = 0;
+  let zoomPct = 100;
+  let fitWidthActive = false;
+  let renderTaskInFlight = null;
+
+  function showPdfPanel(panel) {
+    pdfSkeletonEl.classList.toggle('hidden', panel !== 'loading');
+    pdfPagesEl.classList.toggle('hidden', panel !== 'pages');
+    pdfEmptyStateEl.classList.toggle('hidden', panel !== 'empty');
+    pdfErrorStateEl.classList.toggle('hidden', panel !== 'error');
+  }
+
+  function updateZoomLabel() { document.getElementById('zoomLabel').textContent = `${zoomPct}%`; }
+  function updatePageLabel() {
+    document.getElementById('pageLabel').textContent = pdfDoc ? `Sayfa ${currentPage} / ${totalPages}` : 'Sayfa – / –';
+    prevPageBtn.disabled = !pdfDoc || currentPage <= 1;
+    nextPageBtn.disabled = !pdfDoc || currentPage >= totalPages;
+  }
+
+  // Resolves which PDF the Dashboard operates on. Prefers the file linked
+  // to the active CASE (so switching cases shows the right document). If
+  // the active case has no PDF — or there is no case selected at all —
+  // falls back to the user's most recent upload, so a freshly uploaded but
+  // still-unlinked document is analyzable without forcing the user to
+  // create a case first.
+  async function resolveActiveUploadId() {
+    if (activeCase) {
+      try {
+        const upload = await request(`/cases/${activeCase.id}/primary-upload`);
+        return upload.id;
+      } catch (err) {
+        // no PDF linked to this case — fall through to the global fallback
+      }
+    }
+    try {
+      const history = await request('/uploads/history');
+      return history[0]?.id || null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async function fetchPdfBytes(uploadId) {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const res = await fetch(`${API_BASE_URL}/uploads/${uploadId}/file`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(`PDF alınamadı (${res.status})`);
+    return res.arrayBuffer();
+  }
+
+  async function renderCurrentPage() {
+    if (!pdfDoc) return;
+    const page = await pdfDoc.getPage(currentPage);
+    const unscaledViewport = page.getViewport({ scale: 1 });
+
+    let scale = zoomPct / 100;
+    if (fitWidthActive) {
+      const availableWidth = pdfScrollArea.clientWidth - 32;
+      scale = availableWidth / unscaledViewport.width;
+      zoomPct = Math.round(scale * 100);
+    }
+    updateZoomLabel();
+
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.className = 'page-shadow bg-white rounded-sm';
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const context = canvas.getContext('2d');
+
+    pdfPagesEl.innerHTML = '';
+    pdfPagesEl.appendChild(canvas);
+
+    if (renderTaskInFlight) renderTaskInFlight.cancel();
+    renderTaskInFlight = page.render({ canvasContext: context, viewport });
+    try {
+      await renderTaskInFlight.promise;
+    } finally {
+      renderTaskInFlight = null;
+    }
+
+    updatePageLabel();
+  }
 
   async function loadPdfPreview() {
     pdfLoaded = true;
-    await sleep(700);
-    document.getElementById('pdfSkeleton').classList.add('hidden');
-    const pagesWrap = document.getElementById('pdfPages');
-    pagesWrap.classList.remove('hidden');
-    pagesWrap.innerHTML = [1, 2, 3].map((n) => `
-      <div class="page-shadow bg-white rounded-sm w-full max-w-lg p-8 space-y-2.5 fade-in">
-        <div class="h-3 w-1/3 bg-slate-200 rounded"></div>
-        <div class="h-2 w-full bg-slate-100 rounded mt-4"></div>
-        <div class="h-2 w-full bg-slate-100 rounded"></div>
-        <div class="h-2 w-5/6 bg-slate-100 rounded"></div>
-        <div class="h-2 w-full bg-slate-100 rounded mt-3"></div>
-        <div class="h-2 w-4/6 bg-slate-100 rounded"></div>
-        <div class="h-2 w-full bg-slate-100 rounded mt-3"></div>
-        <div class="h-2 w-3/6 bg-slate-100 rounded"></div>
-        <p class="text-[10px] text-slate-300 text-right pt-4">Sayfa ${n}</p>
-      </div>
-    `).join('');
+    showPdfPanel('loading');
+
+    if (!activeUploadId) {
+      pdfDoc = null;
+      updatePageLabel();
+      showPdfPanel('empty');
+      return;
+    }
+
+    try {
+      const bytes = await fetchPdfBytes(activeUploadId);
+      pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+      totalPages = pdfDoc.numPages;
+      currentPage = 1;
+      zoomPct = 100;
+      fitWidthActive = false;
+      await renderCurrentPage();
+      showPdfPanel('pages');
+    } catch (err) {
+      pdfDoc = null;
+      showPdfPanel('error');
+    }
   }
 
-  function updateZoomLabel() { document.getElementById('zoomLabel').textContent = `${zoomPct}%`; document.getElementById('pdfPages').style.maxWidth = `${zoomPct}%`; }
-  document.getElementById('zoomInBtn').addEventListener('click', () => { zoomPct = Math.min(zoomPct + 10, 200); updateZoomLabel(); });
-  document.getElementById('zoomOutBtn').addEventListener('click', () => { zoomPct = Math.max(zoomPct - 10, 50); updateZoomLabel(); });
-  document.getElementById('fitWidthBtn').addEventListener('click', () => { zoomPct = 100; updateZoomLabel(); });
+  zoomInBtn.addEventListener('click', () => {
+    if (!pdfDoc) return;
+    fitWidthActive = false;
+    zoomPct = Math.min(zoomPct + 10, 200);
+    renderCurrentPage();
+  });
+  zoomOutBtn.addEventListener('click', () => {
+    if (!pdfDoc) return;
+    fitWidthActive = false;
+    zoomPct = Math.max(zoomPct - 10, 50);
+    renderCurrentPage();
+  });
+  fitWidthBtn.addEventListener('click', () => {
+    if (!pdfDoc) return;
+    fitWidthActive = true;
+    renderCurrentPage();
+  });
 
-  function updatePageLabel() { document.getElementById('pageLabel').textContent = `Sayfa ${currentPage} / ${TOTAL_PAGES}`; }
-  document.getElementById('prevPageBtn').addEventListener('click', () => { currentPage = Math.max(currentPage - 1, 1); updatePageLabel(); });
-  document.getElementById('nextPageBtn').addEventListener('click', () => { currentPage = Math.min(currentPage + 1, TOTAL_PAGES); updatePageLabel(); });
+  prevPageBtn.addEventListener('click', () => {
+    if (!pdfDoc || currentPage <= 1) return;
+    currentPage -= 1;
+    renderCurrentPage();
+  });
+  nextPageBtn.addEventListener('click', () => {
+    if (!pdfDoc || currentPage >= totalPages) return;
+    currentPage += 1;
+    renderCurrentPage();
+  });
 
-  document.getElementById('downloadPdfBtn').addEventListener('click', () => showToast('İndirme başlatıldı.', 'success'));
+  document.getElementById('retryPdfBtn').addEventListener('click', () => loadPdfPreview());
+
+  document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+    if (!activeUploadId) { showToast('İndirilecek bir PDF yok.', 'info'); return; }
+    try {
+      const bytes = await fetchPdfBytes(activeUploadId);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dava-dosyasi.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('İndirme başlatıldı.', 'success');
+    } catch (err) {
+      showToast('İndirme sırasında bir hata oluştu.', 'error');
+    }
+  });
+
   document.getElementById('fullscreenBtn').addEventListener('click', () => {
-    const el = document.getElementById('pdfScrollArea');
+    const el = pdfScrollArea;
     if (!document.fullscreenElement) el.requestFullscreen?.();
     else document.exitFullscreen?.();
+  });
+
+  // Re-fit on resize while "Sayfaya Sığdır" is active, debounced.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    if (!fitWidthActive || !pdfDoc) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => renderCurrentPage(), 150);
   });
 
   /* =========================================================
@@ -616,7 +985,7 @@
     return new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function appendMessage(text, sender) {
+  function appendMessage(text, sender, isoTime) {
     if (!hasStartedChat) {
       hasStartedChat = true;
       chatEmptyState.classList.add('hidden');
@@ -625,15 +994,27 @@
     const wrapper = document.createElement('div');
     wrapper.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
     const bubbleClass = sender === 'user' ? 'chat-bubble-user rounded-2xl rounded-tr-sm' : 'chat-bubble-ai rounded-2xl rounded-tl-sm';
+    const timeLabel = isoTime ? new Date(isoTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : formatTime();
     wrapper.innerHTML = `
       <div class="max-w-[85%] sm:max-w-md">
         <div class="${bubbleClass} px-4 py-3 text-sm leading-relaxed fade-in"></div>
-        <p class="text-[10px] text-slate-400 mt-1 ${sender === 'user' ? 'text-right' : 'text-left'}">${formatTime()}</p>
+        <p class="text-[10px] text-slate-400 mt-1 ${sender === 'user' ? 'text-right' : 'text-left'}">${timeLabel}</p>
       </div>
     `;
     wrapper.querySelector(`.${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`).textContent = text;
     chatMessages.appendChild(wrapper);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function loadChatHistory() {
+    if (!activeCase) return;
+    let messages;
+    try {
+      messages = await request(`/cases/${activeCase.id}/chat`);
+    } catch (err) {
+      return; // no history yet, or backend unreachable — keep the empty state
+    }
+    messages.forEach((m) => appendMessage(m.content, m.role === 'user' ? 'user' : 'ai', m.createdAt));
   }
 
   function canned(question) {
@@ -650,8 +1031,10 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     try {
-      const data = await request('/ai/chat', { method: 'POST', body: { question } });
+      const body = { question, uploadId: activeUploadId, caseId: activeCase?.id };
+      const data = await request('/ai/chat', { method: 'POST', body });
       appendMessage(data.answer, 'ai');
+      loadRecentAiActivity();
     } catch (err) {
       await sleep(1000 + Math.random() * 500);
       appendMessage(canned(question), 'ai');
@@ -705,11 +1088,85 @@
     li.innerHTML = `
       <span class="w-2 h-2 rounded-full bg-navy mt-1.5 shrink-0"></span>
       <div>
-        <p class="text-xs font-medium text-navy">${label}</p>
+        <p class="text-xs font-medium text-navy">${escapeHtml(label)}</p>
         <p class="text-[11px] text-slate-400">az önce</p>
       </div>
     `;
     list.prepend(li);
+  }
+
+  const AI_ACTIVITY_TYPES = new Set(['ai_chat', 'ai_summary', 'ai_risks', 'ai_draft']);
+
+  function formatTimelineRelative(isoString) {
+    const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
+    if (diffMin < 1) return 'az önce';
+    if (diffMin < 60) return `${diffMin} dakika önce`;
+    const diffHour = Math.round(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} saat önce`;
+    return `${Math.round(diffHour / 24)} gün önce`;
+  }
+
+  async function loadRecentAiActivity() {
+    if (!activeCase) return;
+    let entries;
+    try {
+      entries = (await request(`/activity?limit=100&caseId=${activeCase.id}`)).filter((e) => AI_ACTIVITY_TYPES.has(e.type));
+    } catch (err) {
+      return; // backend unreachable — leave the timeline empty rather than show stale demo data
+    }
+
+    const list = document.getElementById('timelineList');
+    list.innerHTML = entries.slice(0, 5).map((entry) => `
+      <li class="flex items-start gap-3 fade-in">
+        <span class="w-2 h-2 rounded-full bg-navy mt-1.5 shrink-0"></span>
+        <div>
+          <p class="text-xs font-medium text-navy">${escapeHtml(entry.description)}</p>
+          <p class="text-[11px] text-slate-400">${formatTimelineRelative(entry.createdAt)}</p>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  // Prefills Özet/Riskli Maddeler/Dilekçe Taslağı with whatever was already
+  // generated for this case, so switching back to a previously-analyzed
+  // case shows its real results instead of an empty "not generated yet"
+  // state that would force a wasteful re-generation.
+  let draftUsed = false;
+
+  async function loadCaseAiResults() {
+    if (!activeCase) return;
+    let results;
+    try {
+      results = await request(`/cases/${activeCase.id}/ai-results`);
+    } catch (err) {
+      return;
+    }
+
+    if (results.summary) {
+      document.getElementById('summaryContent').textContent = results.summary.result;
+      toggleCardState('summary', 'done');
+      document.getElementById('summaryContent').classList.remove('hidden');
+    }
+    if (results.risks) {
+      document.getElementById('riskList').innerHTML = `
+        <li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line">${escapeHtml(results.risks.result)}</li>
+      `;
+      toggleCardState('risk', 'done');
+      document.getElementById('riskList').classList.remove('hidden');
+    }
+    if (results.draft) {
+      document.getElementById('draftContent').textContent = results.draft.result;
+      toggleCardState('draft', 'done');
+      document.getElementById('draftContentWrap').classList.remove('hidden');
+      draftUsed = true;
+    }
+
+    const entries = Object.values(results);
+    if (entries.length > 0) {
+      const mostRecent = entries.reduce((a, b) => (new Date(a.generatedAt) > new Date(b.generatedAt) ? a : b));
+      document.getElementById('lastAnalysisText').textContent = formatTimelineRelative(mostRecent.generatedAt);
+      document.getElementById('lastAnalysisWrap').classList.remove('hidden');
+    }
   }
 
   function animateConfidence(target) {
@@ -728,64 +1185,85 @@
     requestAnimationFrame(step);
   }
 
+  // Özet / Risk / Taslak all hit the real /api/ai/* endpoints against the
+  // currently active case's upload; null means it has no PDF yet.
+  async function requireActiveUploadId() {
+    if (!activeUploadId) {
+      showToast('Bu işlem için önce bir PDF yüklemelisiniz.', 'warning');
+      return null;
+    }
+    return activeUploadId;
+  }
+
   // ---- Dava Özeti ----
   document.getElementById('summaryBtn').addEventListener('click', async () => {
+    const uploadId = await requireActiveUploadId();
+    if (!uploadId) return;
     toggleCardState('summary', 'loading');
-    await sleep(1100);
-    document.getElementById('summaryContent').textContent = canned('özet');
-    toggleCardState('summary', 'done');
-    document.getElementById('summaryContent').classList.remove('hidden');
-    showToast('Özet oluşturuldu.', 'success');
-    addTimelineEntry('Özet oluşturuldu');
-    animateConfidence(96);
+    try {
+      const data = await request('/ai/summary', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      document.getElementById('summaryContent').textContent = data.result;
+      toggleCardState('summary', 'done');
+      document.getElementById('summaryContent').classList.remove('hidden');
+      showToast('Özet oluşturuldu.', 'success');
+      addTimelineEntry('Özet oluşturuldu');
+      loadRecentAiActivity();
+      loadNotifications();
+      animateConfidence(96);
+    } catch (err) {
+      toggleCardState('summary', 'empty');
+      showToast(err.message || 'Özet oluşturulamadı.', 'error');
+    }
   });
 
   // ---- Riskli Maddeler ----
-  const RISK_ITEMS = [
-    { level: 'yuksek', label: 'Madde 7.2 — Tek taraflı fesih hakkı davalı lehine düzenlenmiş.' },
-    { level: 'orta', label: 'Madde 11 — Cezai şart oranı emsallerine göre yüksek.' },
-    { level: 'dusuk', label: 'Madde 15 — Yetkili mahkeme kaydında küçük belirsizlik.' },
-  ];
-  const RISK_STYLE = {
-    yuksek: 'bg-red-50 text-red-600',
-    orta: 'bg-amber-50 text-amber-600',
-    dusuk: 'bg-emerald-50 text-emerald-600',
-  };
-  const RISK_LABEL = { yuksek: 'Yüksek Risk', orta: 'Orta Risk', dusuk: 'Düşük Risk' };
-
   document.getElementById('riskBtn').addEventListener('click', async () => {
+    const uploadId = await requireActiveUploadId();
+    if (!uploadId) return;
     toggleCardState('risk', 'loading');
-    await sleep(1300);
-    document.getElementById('riskList').innerHTML = RISK_ITEMS.map((item) => `
-      <li class="flex items-start gap-2.5 text-xs bg-slate-50 rounded-lg p-2.5 border border-slate-100">
-        <span class="shrink-0 mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${RISK_STYLE[item.level]}">${RISK_LABEL[item.level]}</span>
-        <span class="text-slate-600 leading-relaxed">${item.label}</span>
-      </li>
-    `).join('');
-    toggleCardState('risk', 'done');
-    document.getElementById('riskList').classList.remove('hidden');
-    showToast('Risk analizi tamamlandı.', 'success');
-    addTimelineEntry('Risk analizi tamamlandı');
-    animateConfidence(94);
+    try {
+      const data = await request('/ai/risks', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      document.getElementById('riskList').innerHTML = `
+        <li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line">${escapeHtml(data.result)}</li>
+      `;
+      toggleCardState('risk', 'done');
+      document.getElementById('riskList').classList.remove('hidden');
+      showToast('Risk analizi tamamlandı.', 'success');
+      addTimelineEntry('Risk analizi tamamlandı');
+      loadRecentAiActivity();
+      loadNotifications();
+      animateConfidence(94);
+    } catch (err) {
+      toggleCardState('risk', 'empty');
+      showToast(err.message || 'Risk analizi tamamlanamadı.', 'error');
+    }
   });
 
-  // ---- Dilekçe Taslağı (gated behind a single free generation) ----
-  let draftUsed = false;
+  // ---- Dilekçe Taslağı (gated behind a single free generation; draftUsed
+  // declared above, alongside loadCaseAiResults which also sets it) ----
   document.getElementById('draftBtn').addEventListener('click', async () => {
     if (draftUsed) {
       showToast('Ücretsiz plan sınırına ulaştınız. Sınırsız taslak için Premium gerekli.', 'warning');
       return;
     }
+    const uploadId = await requireActiveUploadId();
+    if (!uploadId) return;
     toggleCardState('draft', 'loading');
-    await sleep(1300);
-    const draftText = 'Sayın Mahkeme Başkanlığı,\n\nMüvekkilim ile davalı taraf arasında akdedilen sözleşme kapsamında doğan alacağın tahsili talebiyle işbu davayı açma zarureti hasıl olmuştur...\n\n[Taslak, gerçek yapay zeka servisi bağlandığında tam metin olarak üretilecektir.]';
-    document.getElementById('draftContent').textContent = draftText;
-    toggleCardState('draft', 'done');
-    document.getElementById('draftContentWrap').classList.remove('hidden');
-    draftUsed = true;
-    showToast('Taslak oluşturuldu.', 'success');
-    addTimelineEntry('Taslak oluşturuldu');
-    animateConfidence(97);
+    try {
+      const data = await request('/ai/draft', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      document.getElementById('draftContent').textContent = data.result;
+      toggleCardState('draft', 'done');
+      document.getElementById('draftContentWrap').classList.remove('hidden');
+      draftUsed = true;
+      showToast('Taslak oluşturuldu.', 'success');
+      addTimelineEntry('Taslak oluşturuldu');
+      loadRecentAiActivity();
+      loadNotifications();
+      animateConfidence(97);
+    } catch (err) {
+      toggleCardState('draft', 'empty');
+      showToast(err.message || 'Taslak oluşturulamadı.', 'error');
+    }
   });
 
   document.getElementById('draftCopyBtn').addEventListener('click', () => {
@@ -809,15 +1287,21 @@
   ========================================================= */
   updateZoomLabel();
   updatePageLabel();
+  loadIdentity();
+  loadSidebarUsage();
+  loadNotifications();
+  loadPaletteCases();
 
-  // Record this case as recently viewed — my-cases.html reads the same
-  // localStorage key to render its "Son Görüntülenenler" rail.
-  (function trackRecentCase(title) {
-    let recent = JSON.parse(localStorage.getItem('lexassist_recent_cases') || '[]');
-    recent = recent.filter((t) => t !== title);
-    recent.unshift(title);
-    localStorage.setItem('lexassist_recent_cases', JSON.stringify(recent.slice(0, 5)));
-  })('Yılmaz vs. ABC Ltd.');
+  // Case-dependent data (PDF, chat, AI results, activity) all need
+  // activeCase/activeUploadId resolved first, so these run in sequence
+  // rather than firing in parallel with everything above.
+  (async () => {
+    await loadCaseContext();
+    loadRecentAiActivity();
+    loadCaseAiResults();
+    loadChatHistory();
+    lucide.createIcons();
+  })();
 
   lucide.createIcons();
 </script>

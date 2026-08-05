@@ -185,7 +185,7 @@
                 <input type="checkbox" name="remember" class="rounded border-slate-300 text-navy focus:ring-gold focus:ring-offset-0" />
                 Beni hatırla
               </label>
-              <a href="#" class="text-navy-light font-medium hover:text-gold transition">Şifremi unuttum</a>
+              <a href="forgot-password.html" class="text-navy-light font-medium hover:text-gold transition">Şifremi unuttum</a>
             </div>
 
             <button type="submit" id="loginSubmitBtn"
@@ -397,7 +397,7 @@
       if (err instanceof TypeError) {
         // Backend henüz ayakta değil (bağlantı hatası) — diğer sayfaların
         // requireAuth() koruması sizi kilitlemesin diye demo oturumuyla devam ediyoruz.
-        setSession('demo-token', { fullName: 'Av. Ayşe Yılmaz', email: loginEmail.value.trim() });
+        setSession('demo-token', { fullName: loginEmail.value.trim().split('@')[0] || 'Kullanıcı', email: loginEmail.value.trim() });
         showAlert(loginAlert, 'success', 'Backend bağlı değil — demo modunda giriş yapıldı. Yönlendiriliyorsunuz...');
         setTimeout(() => { window.location.href = 'index.html'; }, 900);
         return;

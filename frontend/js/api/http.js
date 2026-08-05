@@ -52,7 +52,9 @@ export async function request(path, { method = 'GET', body, auth = true } = {}) 
 
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}));
-    throw new ApiError(payload.message || 'Bir hata oluştu.', res.status, payload.fields);
+    // FastAPI's default error shape is {"detail": "..."}; support a future
+    // {"message": "..."} shape too so this doesn't need to change either way.
+    throw new ApiError(payload.detail || payload.message || 'Bir hata oluştu.', res.status, payload.fields);
   }
 
   const contentType = res.headers.get('content-type') || '';
