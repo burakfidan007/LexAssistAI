@@ -9,9 +9,9 @@ This splits the app across three managed services:
 | MongoDB | **MongoDB Atlas** (free M0) | neither Vercel nor Render hosts MongoDB |
 
 > 📁 **File storage.** Render's disk is ephemeral (files vanish on restart),
-> so uploaded PDFs + avatars go to **Firebase Storage** instead
-> (`STORAGE_BACKEND=firebase`). Do the Firebase setup in Step 1b below.
-> (Locally / on a VPS, `STORAGE_BACKEND=local` keeps using disk — no Firebase
+> so uploaded PDFs + avatars go to **Supabase Storage** instead
+> (`STORAGE_BACKEND=supabase`). Do the Supabase setup in Step 1b below.
+> (Locally / on a VPS, `STORAGE_BACKEND=local` keeps using disk — no Supabase
 > needed there.)
 
 ---
@@ -27,18 +27,17 @@ This splits the app across three managed services:
 
 ---
 
-## Step 1b — Firebase Storage (for uploaded files)
+## Step 1b — Supabase Storage (for uploaded files)
 
-1. <https://console.firebase.google.com> → **Add project** (can reuse your Gemini project).
-2. Left menu → **Storage** → **Get started** → accept defaults. Note the bucket
-   name shown, e.g. `your-project-id.appspot.com`.
-3. ⚙️ **Project settings** → **Service accounts** → **Generate new private key**.
-   A JSON file downloads. You'll paste its **entire contents** into the Render
-   env var `FIREBASE_CREDENTIALS_JSON` (never commit this file).
-
-> Newer Firebase projects may prompt to enable the **Blaze** (pay-as-you-go)
-> plan for Storage; you stay within the free usage limits for a small app, but
-> a card may be required. Cloudflare R2 is an alternative if you prefer.
+1. <https://supabase.com> → sign in → **New project** (no credit card required
+   for the free tier — 1GB storage).
+2. Left menu → **Storage** → **New bucket** → name it e.g. `lexassist-files` →
+   leave it **private** (not public) → Create.
+3. Left menu → ⚙️ **Project Settings** → **API**. Note two values:
+   - **Project URL** (e.g. `https://xxxxx.supabase.co`) → `SUPABASE_URL`
+   - **service_role** key (under "Project API keys" — **not** the `anon` key)
+     → `SUPABASE_SERVICE_KEY`. This key bypasses bucket access policies, so
+     never expose it to the frontend or commit it — it only goes into Render.
 
 ---
 
@@ -64,9 +63,10 @@ This splits the app across three managed services:
    SMTP_USER          = you@gmail.com
    SMTP_PASSWORD      = <Gmail App Password>
    SMTP_FROM          = you@gmail.com
-   STORAGE_BACKEND    = firebase
-   FIREBASE_BUCKET    = your-project-id.appspot.com
-   FIREBASE_CREDENTIALS_JSON = <paste the whole service-account JSON as one value>
+   STORAGE_BACKEND    = supabase
+   SUPABASE_URL       = https://xxxxx.supabase.co
+   SUPABASE_SERVICE_KEY = <the service_role key, not anon>
+   SUPABASE_BUCKET    = lexassist-files
    ```
    > Render injects `PORT`; the container already listens on it.
 4. Deploy. Note the service URL, e.g. `https://lexassist-api.onrender.com`.
