@@ -9,7 +9,7 @@
 //    your Render backend URL, e.g. 'https://lexassist-api.onrender.com'.
 //    The backend must then list your Vercel URL in CORS_ORIGINS.
 // ---------------------------------------------------------------------------
-const API_ORIGIN = ''; // '' = same-origin; or 'https://your-backend.onrender.com'
+const API_ORIGIN = 'https://lexassist-api.onrender.com';
 
 export const API_BASE_URL = `${API_ORIGIN || window.location.origin}/api`;
 export const TOKEN_KEY = 'lexassist_token';
