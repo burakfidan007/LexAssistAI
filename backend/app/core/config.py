@@ -42,10 +42,15 @@ class Settings(BaseSettings):
     #   "local"    -> disk under storage_root (VPS / local docker)
     #   "firebase" -> Firebase Storage bucket (needed on Render, whose disk
     #                 is ephemeral); requires firebase_bucket + credentials.
+    #   "supabase" -> Supabase Storage bucket; requires supabase_url,
+    #                 supabase_service_key + supabase_bucket.
     storage_backend: str = "local"
     storage_root: str = "/app/storage"
     firebase_bucket: str = ""  # e.g. your-project-id.appspot.com
     firebase_credentials_json: str = ""  # raw service-account JSON (Render env var)
+    supabase_url: str = ""  # e.g. https://xxxxx.supabase.co
+    supabase_service_key: str = ""  # service_role key — full access, never expose to the frontend
+    supabase_bucket: str = ""  # e.g. lexassist-files
 
     # Used to build links inside password-reset / verification emails.
     frontend_base_url: str = "http://localhost:3000"
@@ -139,6 +144,15 @@ class Settings(BaseSettings):
                 problems.append("STORAGE_BACKEND=firebase ancak FIREBASE_BUCKET boş.")
             if not self.firebase_credentials_json:
                 problems.append("STORAGE_BACKEND=firebase ancak FIREBASE_CREDENTIALS_JSON boş.")
+
+        # Supabase storage, when selected, needs its project URL + service key + bucket.
+        if self.storage_backend.strip().lower() == "supabase":
+            if not self.supabase_url:
+                problems.append("STORAGE_BACKEND=supabase ancak SUPABASE_URL boş.")
+            if not self.supabase_service_key:
+                problems.append("STORAGE_BACKEND=supabase ancak SUPABASE_SERVICE_KEY boş.")
+            if not self.supabase_bucket:
+                problems.append("STORAGE_BACKEND=supabase ancak SUPABASE_BUCKET boş.")
 
         # Reset/verification links are useless if they only print to the
         # server console, so real SMTP delivery is mandatory in production.

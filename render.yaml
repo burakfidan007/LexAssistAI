@@ -11,7 +11,7 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
-    plan: free             # with STORAGE_BACKEND=firebase, files live in Firebase, so no disk is needed
+    plan: free             # with STORAGE_BACKEND=supabase, files live in Supabase, so no disk is needed
     autoDeploy: true
 
     envVars:
@@ -23,9 +23,9 @@ services:
         value: "587"
       - key: EMAIL_MODE
         value: smtp
-      # Files go to Firebase Storage (Render's own disk is ephemeral).
+      # Files go to Supabase Storage (Render's own disk is ephemeral).
       - key: STORAGE_BACKEND
-        value: firebase
+        value: supabase
 
       # ---- set these in the Render dashboard ----
       - key: JWT_SECRET            # python3 -c "import secrets;print(secrets.token_urlsafe(48))"
@@ -46,7 +46,9 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
-      - key: FIREBASE_BUCKET             # your-project-id.appspot.com (Firebase console → Storage)
+      - key: SUPABASE_URL                 # https://xxxxx.supabase.co (Project Settings → API)
         sync: false
-      - key: FIREBASE_CREDENTIALS_JSON   # paste the WHOLE service-account JSON as one value
+      - key: SUPABASE_SERVICE_KEY         # service_role key (Project Settings → API) — never expose to the frontend
+        sync: false
+      - key: SUPABASE_BUCKET              # e.g. lexassist-files (Storage → bucket name)
         sync: false

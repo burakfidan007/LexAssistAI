@@ -3,7 +3,8 @@
 Uploaded PDFs and avatars go through this layer instead of touching the
 disk directly, so the same code runs on a VPS (local disk) and on a
 platform with an ephemeral filesystem like Render (Firebase / Cloud
-Storage). Pick the backend with STORAGE_BACKEND=local|firebase.
+Storage, or Supabase Storage). Pick the backend with
+STORAGE_BACKEND=local|firebase|supabase.
 
 Documents store a relative *storage key* (e.g. "uploads/<uid>/<uuid>.pdf")
 rather than an absolute path, so the value is portable across backends.
@@ -102,15 +103,59 @@ class FirebaseStorage(StorageBackend):
         await asyncio.to_thread(_delete)
 
 
+class SupabaseStorage(StorageBackend):
+    """Supabase Storage, via its plain REST API (no supabase-py dependency
+    needed for just object CRUD). Uses the service_role key so requests
+    bypass bucket RLS policies — never expose that key to the frontend."""
+
+    def __init__(self, project_url: str, service_key: str, bucket: str):
+        import httpx
+
+        self._bucket = bucket
+        self._base = f"{project_url.rstrip('/')}/storage/v1/object"
+        self._client = httpx.AsyncClient(
+            headers={"Authorization": f"Bearer {service_key}", "apikey": service_key},
+            timeout=30.0,
+        )
+
+    async def save(self, key: str, data: bytes, content_type: str) -> None:
+        resp = await self._client.post(
+            f"{self._base}/{self._bucket}/{key}",
+            content=data,
+            headers={"Content-Type": content_type, "x-upsert": "true"},
+        )
+        resp.raise_for_status()
+
+    async def load(self, key: str) -> bytes | None:
+        resp = await self._client.get(f"{self._base}/{self._bucket}/{key}")
+        if resp.status_code == 404:
+            return None
+        resp.raise_for_status()
+        return resp.content
+
+    async def delete(self, key: str) -> None:
+        try:
+            resp = await self._client.request(
+                "DELETE", f"{self._base}/{self._bucket}", json={"prefixes": [key]}
+            )
+            resp.raise_for_status()
+        except Exception:  # already gone / not found
+            pass
+
+
 _storage: StorageBackend | None = None
 
 
 def get_storage() -> StorageBackend:
     global _storage
     if _storage is None:
-        if settings.storage_backend.strip().lower() == "firebase":
+        backend = settings.storage_backend.strip().lower()
+        if backend == "firebase":
             logger.info("Storage backend: Firebase (bucket=%s)", settings.firebase_bucket)
             _storage = FirebaseStorage(settings.firebase_bucket, settings.firebase_credentials_json)
+        elif backend == "supabase":
+            logger.info("Storage backend: Supabase (bucket=%s)", settings.supabase_bucket)
+            _storage = SupabaseStorage(settings.supabase_url, settings.supabase_service_key, settings.supabase_bucket)
         else:
             logger.info("Storage backend: local disk (%s)", settings.storage_root)
             _storage = LocalStorage(settings.storage_root)
