@@ -433,7 +433,7 @@
 
 <script type="module">
   import { TOKEN_KEY, API_BASE_URL } from './js/config/env.js';
-  import { request, clearSession } from './js/api/http.js';
+  import { request, clearSession, ApiError } from './js/api/http.js';
   import { escapeHtml } from './js/utils/sanitize.js';
 
   /* =========================================================
@@ -873,14 +873,30 @@
     pdfPagesEl.appendChild(canvas);
 
     if (renderTaskInFlight) renderTaskInFlight.cancel();
-    renderTaskInFlight = page.render({ canvasContext: context, viewport });
+    const task = page.render({ canvasContext: context, viewport });
+    renderTaskInFlight = task;
     try {
-      await renderTaskInFlight.promise;
+      await task.promise;
+    } catch (err) {
+      // Clicking zoom or page buttons quickly cancels the render already in
+      // flight; that rejection is the expected outcome, not a failure, so it
+      // must not bubble up as an unhandled rejection.
+      if (err?.name === 'RenderingCancelledException') return;
+      throw err;
     } finally {
-      renderTaskInFlight = null;
+      // Only clear the handle if a newer render hasn't already claimed it —
+      // otherwise a cancelled render wipes the live one's handle and the next
+      // click has nothing to cancel.
+      if (renderTaskInFlight === task) renderTaskInFlight = null;
     }
 
     updatePageLabel();
+  }
+
+  /** renderCurrentPage() is fired from click handlers that cannot await it;
+      this keeps a genuine render failure off the console and on screen. */
+  function renderCurrentPageSafely() {
+    renderCurrentPage().catch(() => showPdfPanel('error'));
   }
 
   async function loadPdfPreview() {
@@ -913,29 +929,29 @@
     if (!pdfDoc) return;
     fitWidthActive = false;
     zoomPct = Math.min(zoomPct + 10, 200);
-    renderCurrentPage();
+    renderCurrentPageSafely();
   });
   zoomOutBtn.addEventListener('click', () => {
     if (!pdfDoc) return;
     fitWidthActive = false;
     zoomPct = Math.max(zoomPct - 10, 50);
-    renderCurrentPage();
+    renderCurrentPageSafely();
   });
   fitWidthBtn.addEventListener('click', () => {
     if (!pdfDoc) return;
     fitWidthActive = true;
-    renderCurrentPage();
+    renderCurrentPageSafely();
   });
 
   prevPageBtn.addEventListener('click', () => {
     if (!pdfDoc || currentPage <= 1) return;
     currentPage -= 1;
-    renderCurrentPage();
+    renderCurrentPageSafely();
   });
   nextPageBtn.addEventListener('click', () => {
     if (!pdfDoc || currentPage >= totalPages) return;
     currentPage += 1;
-    renderCurrentPage();
+    renderCurrentPageSafely();
   });
 
   document.getElementById('retryPdfBtn').addEventListener('click', () => loadPdfPreview());
@@ -968,7 +984,7 @@
   window.addEventListener('resize', () => {
     if (!fitWidthActive || !pdfDoc) return;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => renderCurrentPage(), 150);
+    resizeTimer = setTimeout(renderCurrentPageSafely, 150);
   });
 
   /* =========================================================
@@ -1202,6 +1218,9 @@
     toggleCardState('summary', 'loading');
     try {
       const data = await request('/ai/summary', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      // An empty result would otherwise render the string "undefined" — treat
+      // it as a failure so the card falls back to its empty state instead.
+      if (!data?.result?.trim()) throw new ApiError('Model bu belge için özet üretemedi. Lütfen tekrar deneyin.', 0);
       document.getElementById('summaryContent').textContent = data.result;
       toggleCardState('summary', 'done');
       document.getElementById('summaryContent').classList.remove('hidden');
@@ -1223,6 +1242,7 @@
     toggleCardState('risk', 'loading');
     try {
       const data = await request('/ai/risks', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      if (!data?.result?.trim()) throw new ApiError('Model bu belge için risk analizi üretemedi. Lütfen tekrar deneyin.', 0);
       document.getElementById('riskList').innerHTML = `
         <li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line">${escapeHtml(data.result)}</li>
       `;
@@ -1251,6 +1271,7 @@
     toggleCardState('draft', 'loading');
     try {
       const data = await request('/ai/draft', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
+      if (!data?.result?.trim()) throw new ApiError('Model bu belge için taslak üretemedi. Lütfen tekrar deneyin.', 0);
       document.getElementById('draftContent').textContent = data.result;
       toggleCardState('draft', 'done');
       document.getElementById('draftContentWrap').classList.remove('hidden');
@@ -1296,11 +1317,19 @@
   // activeCase/activeUploadId resolved first, so these run in sequence
   // rather than firing in parallel with everything above.
   (async () => {
-    await loadCaseContext();
-    loadRecentAiActivity();
-    loadCaseAiResults();
-    loadChatHistory();
-    lucide.createIcons();
+    // Each loader guards itself, but a failure here must never stop
+    // lucide.createIcons() from running — without it every icon on the page
+    // silently disappears, which looks like a broken build.
+    try {
+      await loadCaseContext();
+      loadRecentAiActivity();
+      loadCaseAiResults();
+      loadChatHistory();
+    } catch (err) {
+      showToast('Pano verileri yüklenemedi. Sayfayı yenilemeyi deneyin.', 'error');
+    } finally {
+      lucide.createIcons();
+    }
   })();
 
   lucide.createIcons();
