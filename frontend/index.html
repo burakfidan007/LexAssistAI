@@ -1173,19 +1173,18 @@
     }
 
     if (results.summary) {
-      document.getElementById('summaryContent').textContent = results.summary.result;
+      renderAiText(document.getElementById('summaryContent'), results.summary.result);
       toggleCardState('summary', 'done');
       document.getElementById('summaryContent').classList.remove('hidden');
     }
     if (results.risks) {
-      document.getElementById('riskList').innerHTML = `
-        <li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line">${escapeHtml(results.risks.result)}</li>
-      `;
+      document.getElementById('riskList').innerHTML = '<li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line"></li>';
+      renderAiText(document.getElementById('riskList').firstElementChild, results.risks.result);
       toggleCardState('risk', 'done');
       document.getElementById('riskList').classList.remove('hidden');
     }
     if (results.draft) {
-      document.getElementById('draftContent').textContent = results.draft.result;
+      renderAiText(document.getElementById('draftContent'), results.draft.result);
       toggleCardState('draft', 'done');
       document.getElementById('draftContentWrap').classList.remove('hidden');
       draftUsed = true;
@@ -1215,6 +1214,16 @@
     requestAnimationFrame(step);
   }
 
+  /* The model replies in light markdown, which rendered as literal "**" and
+     "* " in the cards. Escape the model's text first, then promote only bold
+     and list bullets — every other character stays inert, so nothing the
+     model emits can introduce markup of its own. */
+  function renderAiText(el, text) {
+    el.innerHTML = escapeHtml(text ?? '')
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/^[ \t]*[*-][ \t]+/gm, '• ');
+  }
+
   // Özet / Risk / Taslak all hit the real /api/ai/* endpoints against the
   // currently active case's upload; null means it has no PDF yet.
   async function requireActiveUploadId() {
@@ -1235,7 +1244,7 @@
       // An empty result would otherwise render the string "undefined" — treat
       // it as a failure so the card falls back to its empty state instead.
       if (!data?.result?.trim()) throw new ApiError('Model bu belge için özet üretemedi. Lütfen tekrar deneyin.', 0);
-      document.getElementById('summaryContent').textContent = data.result;
+      renderAiText(document.getElementById('summaryContent'), data.result);
       toggleCardState('summary', 'done');
       document.getElementById('summaryContent').classList.remove('hidden');
       showToast('Özet oluşturuldu.', 'success');
@@ -1257,9 +1266,8 @@
     try {
       const data = await request('/ai/risks', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
       if (!data?.result?.trim()) throw new ApiError('Model bu belge için risk analizi üretemedi. Lütfen tekrar deneyin.', 0);
-      document.getElementById('riskList').innerHTML = `
-        <li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line">${escapeHtml(data.result)}</li>
-      `;
+      document.getElementById('riskList').innerHTML = '<li class="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100 whitespace-pre-line"></li>';
+      renderAiText(document.getElementById('riskList').firstElementChild, data.result);
       toggleCardState('risk', 'done');
       document.getElementById('riskList').classList.remove('hidden');
       showToast('Risk analizi tamamlandı.', 'success');
@@ -1286,7 +1294,7 @@
     try {
       const data = await request('/ai/draft', { method: 'POST', body: { uploadId, caseId: activeCase?.id } });
       if (!data?.result?.trim()) throw new ApiError('Model bu belge için taslak üretemedi. Lütfen tekrar deneyin.', 0);
-      document.getElementById('draftContent').textContent = data.result;
+      renderAiText(document.getElementById('draftContent'), data.result);
       toggleCardState('draft', 'done');
       document.getElementById('draftContentWrap').classList.remove('hidden');
       draftUsed = true;
