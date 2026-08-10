@@ -1031,7 +1031,10 @@
         <p class="text-[10px] text-slate-400 mt-1 ${sender === 'user' ? 'text-right' : 'text-left'}">${timeLabel}</p>
       </div>
     `;
-    wrapper.querySelector(`.${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`).textContent = text;
+    const bubble = wrapper.querySelector(`.${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`);
+    // The user's own text is shown verbatim; only model replies carry markdown.
+    if (sender === 'user') bubble.textContent = text;
+    else renderAiText(bubble, text);
     chatMessages.appendChild(wrapper);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
