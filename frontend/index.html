@@ -757,6 +757,11 @@
   const chatView = document.getElementById('chatView');
   const pdfView = document.getElementById('pdfView');
   let pdfLoaded = false;
+  // Resolves once loadCaseContext() has settled activeUploadId. The PDF tab
+  // can be clicked before that happens (the backend's first response after an
+  // idle period is slow), and without waiting the viewer would decide there is
+  // no PDF, latch pdfLoaded, and never look again until a full reload.
+  let caseContextReady = Promise.resolve();
 
   function setDashboardTab(tab) {
     const isChat = tab === 'chat';
@@ -903,10 +908,16 @@
     pdfLoaded = true;
     showPdfPanel('loading');
 
+    // Wait for the case/upload lookup before concluding there is no PDF,
+    // otherwise an early tab click renders a permanent empty state.
+    await caseContextReady.catch(() => {});
+
     if (!activeUploadId) {
       pdfDoc = null;
       updatePageLabel();
       showPdfPanel('empty');
+      // Nothing was actually loaded, so let a later attempt try again.
+      pdfLoaded = false;
       return;
     }
 
@@ -1321,7 +1332,13 @@
     // lucide.createIcons() from running — without it every icon on the page
     // silently disappears, which looks like a broken build.
     try {
-      await loadCaseContext();
+      caseContextReady = loadCaseContext();
+      await caseContextReady;
+      // If the viewer already gave up because the tab was opened before the
+      // lookup finished, run it again now that activeUploadId is known.
+      if (!pdfView.classList.contains('hidden') && !pdfLoaded && activeUploadId) {
+        loadPdfPreview();
+      }
       loadRecentAiActivity();
       loadCaseAiResults();
       loadChatHistory();
