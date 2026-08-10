@@ -37,5 +37,13 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 # Entrypoint fixes volume ownership as root, then execs the CMD as appuser.
 # Shell form so ${PORT} is honored — Render injects PORT; locally it's unset
 # and defaults to 8000 (which the compose files + healthcheck expect).
+#
+# --forwarded-allow-ips='*' makes uvicorn trust X-Forwarded-For. Without it,
+# request.client.host is the reverse proxy's address (Render's router, or the
+# nginx container locally), so the rate limiter buckets every caller together
+# under a proxy IP instead of their own — which silently disables brute-force
+# protection on login. Trusting '*' is safe here because the app is only ever
+# reached through a proxy that overwrites the header at its edge; it must NOT
+# be used if the container is ever exposed to the internet directly.
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --forwarded-allow-ips='*'"]
