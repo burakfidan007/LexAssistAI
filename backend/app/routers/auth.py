@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response, UploadFile, status
 from pymongo.errors import DuplicateKeyError
 
 from app.core.config import settings
@@ -52,7 +52,15 @@ def _is_expired(expires_at: datetime | None) -> bool:
     return expires_at < datetime.now(timezone.utc)
 
 
-async def _issue_verification_token(db, user_id, email: str) -> None:
+async def _issue_verification_token(db, user_id, email: str, background_tasks: BackgroundTasks) -> None:
+    """Persists a fresh verification token, then hands the actual delivery to
+    a background task.
+
+    The token write stays inline because the link must be valid the moment the
+    response is sent. The SMTP send does not: a Gmail handshake takes double
+    digit seconds from the app server, and awaiting it here made registration
+    appear frozen for ~18s (long enough that a client-side timeout could abort
+    a registration that had, in fact, already succeeded)."""
     verification_token = generate_secure_token()
     await db.users.update_one(
         {"_id": user_id},
@@ -65,12 +73,12 @@ async def _issue_verification_token(db, user_id, email: str) -> None:
         },
     )
     verify_url = f"{settings.frontend_base_url}/verify-email.html?token={verification_token}"
-    await send_verification_email(email, verify_url)
+    background_tasks.add_task(send_verification_email, email, verify_url)
 
 
 @router.post("/register", response_model=TokenResponse)
 @limiter.limit("5/minute")
-async def register(request: Request, payload: UserRegister):
+async def register(request: Request, payload: UserRegister, background_tasks: BackgroundTasks):
     db = get_database()
 
     email_taken = HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Bu e-posta zaten kayıtlı.")
@@ -98,7 +106,7 @@ async def register(request: Request, payload: UserRegister):
 
     # Verification is informational, not a login gate — registering still
     # signs the user in immediately, matching the existing flow.
-    await _issue_verification_token(db, user_doc["_id"], payload.email)
+    await _issue_verification_token(db, user_doc["_id"], payload.email, background_tasks)
 
     token = create_access_token(str(result.inserted_id))
     return TokenResponse(token=token, user=_to_public(user_doc))
@@ -225,7 +233,7 @@ async def delete_account(current_user: dict = Depends(get_current_user)):
 
 @router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)
 @limiter.limit("5/minute")
-async def forgot_password(request: Request, payload: ForgotPasswordRequest):
+async def forgot_password(request: Request, payload: ForgotPasswordRequest, background_tasks: BackgroundTasks):
     db = get_database()
     user = await db.users.find_one({"email": payload.email})
 
@@ -242,7 +250,9 @@ async def forgot_password(request: Request, payload: ForgotPasswordRequest):
             },
         )
         reset_url = f"{settings.frontend_base_url}/reset-password.html?token={reset_token}"
-        await send_password_reset_email(user["email"], reset_url)
+        # Backgrounded for the same reason as verification: the SMTP round trip
+        # would otherwise hold the response open for double digit seconds.
+        background_tasks.add_task(send_password_reset_email, user["email"], reset_url)
 
     # Always 204 whether or not the email exists — prevents account
     # enumeration via response differences.
@@ -296,12 +306,12 @@ async def verify_email(request: Request, payload: VerifyEmailRequest):
 
 @router.post("/resend-verification", status_code=status.HTTP_204_NO_CONTENT)
 @limiter.limit("5/minute")
-async def resend_verification(request: Request, payload: ResendVerificationRequest):
+async def resend_verification(request: Request, payload: ResendVerificationRequest, background_tasks: BackgroundTasks):
     db = get_database()
     user = await db.users.find_one({"email": payload.email})
 
     if user is not None and not user.get("email_verified", False):
-        await _issue_verification_token(db, user["_id"], user["email"])
+        await _issue_verification_token(db, user["_id"], user["email"], background_tasks)
 
     # Same anti-enumeration reasoning as forgot-password.
     return None
